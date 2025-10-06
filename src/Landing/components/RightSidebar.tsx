@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState, CSSProperties } from "react";
+import React, { useEffect, useMemo, useState, type CSSProperties } from "react";
 import ReactDOM from "react-dom";
 
 import Brand from "../../assets/Rigthbar/Circular.svg";
