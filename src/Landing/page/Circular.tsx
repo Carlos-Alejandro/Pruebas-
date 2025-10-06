@@ -1,14 +1,13 @@
+// src/Landing/page/Circular.tsx
 import React from "react";
 import Hero from "../components/Hero";
 
-
-const Garage: React.FC = () => {
-  // return <><NuestraHistoria /><Contacto /></>;
+const Circular: React.FC = () => {
   return (
-    <>      
-    <Hero />
-    </>
+    <div className="min-h-screen bg-white">
+      <Hero />
+    </div>
   );
 };
 
-export default Garage;
+export default Circular;
