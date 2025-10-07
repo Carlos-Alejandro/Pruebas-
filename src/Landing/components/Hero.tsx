@@ -2,8 +2,12 @@ import React from "react";
 import heroImage from "../../assets/Hero/Hero-Circular.png";
 
 /**
- * Hero principal — versión final
- * Centrado perfecto + fondo cubriendo todo el viewport
+ * Hero principal — versión responsive final
+ * - Cubre 100% del ancho y alto del viewport (100vh)
+ * - Imagen centrada con proporción correcta
+ * - Overlay gris (#D9D9D9 con opacidad)
+ * - Texto centrado perfectamente
+ * - Tipografía y layout 100% responsive en rem
  */
 
 const Hero: React.FC = () => {
@@ -16,12 +20,18 @@ const Hero: React.FC = () => {
         className="absolute inset-0 w-full h-full object-cover object-center"
       />
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-[rgba(0,0,0,0.25)]" />
+      {/* Overlay gris del diseño Figma */}
+      <div className="absolute inset-0 bg-[#D9D9D9]/[0.24]" />
 
       {/* Texto centrado */}
-      <div className="relative z-10 max-w-[60.6rem] px-[3.2rem] text-center">
-        <h1 className="text-white font-bold text-[4rem] sm:text-[2.4rem] leading-tight">
+      <div className="relative z-10 text-center mx-auto px-[3.2rem] max-w-[80.6rem] sm:max-w-[60.6rem]">
+        <h1
+          className="
+            font-soehne font-bold leading-[1] 
+            text-[2.4rem] sm:text-[3rem] md:text-[3.6rem] lg:text-[4rem]
+          "
+          style={{ color: "#F2F2F2" }}
+        >
           Creamos entornos de alta calidad.
         </h1>
       </div>

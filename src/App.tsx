@@ -1,8 +1,11 @@
-import Circular from "./Landing/page/Circular"; // Make sure src/components/Circular.tsx exists
+import Circular from "./Landing/page/Circular";
+import RightSidebar from "./Landing/components/RightSidebar";
 
-
-function App() {
-  return <Circular />;
+export default function App() {
+  return (
+    <div className="relative min-h-screen">
+      <Circular />
+      <RightSidebar />
+    </div>
+  );
 }
-
-export default App;

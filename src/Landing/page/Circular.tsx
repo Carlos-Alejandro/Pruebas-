@@ -1,18 +1,16 @@
+// src/Landing/page/Circular.tsx
 import React from "react";
 import Hero from "../components/Hero";
 import Contacto from "../components/Contacto";
 import Equipo from "../components/Equipo";
 
-
-const Garage: React.FC = () => {
-  // return <><NuestraHistoria /><Contacto /></>;
+const Circular: React.FC = () => {
   return (
-    <>      
-    <Hero />
-    <Equipo />
-    <Contacto />
-    </>
+    <div className="min-h-screen bg-white">
+      <Hero />
+      <Equipo />
+    </div>
   );
 };
 
-export default Garage;
+export default Circular;

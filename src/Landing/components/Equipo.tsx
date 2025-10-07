@@ -13,7 +13,7 @@ const Equipo: React.FC = () => {
   ];
 
   return (
-    <section id="equipo" className="bg-black py-[8rem] flex justify-center">
+    <section id="equipo" className="bg-black py-[8rem] flex justify-center" style={{ backgroundColor: "#000000" }}>
       <div className="w-full max-w-[179.4rem] px-[4rem] flex flex-col">
         {/* Título */}
         <h2
