@@ -1,5 +1,7 @@
 import React from "react";
 import Hero from "../components/Hero";
+import Contacto from "../components/Contacto";
+import Equipo from "../components/Equipo";
 
 
 const Garage: React.FC = () => {
@@ -7,6 +9,8 @@ const Garage: React.FC = () => {
   return (
     <>      
     <Hero />
+    <Equipo />
+    <Contacto />
     </>
   );
 };
