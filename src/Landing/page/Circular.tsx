@@ -9,6 +9,7 @@ const Circular: React.FC = () => {
     <div className="min-h-screen bg-white">
       <Hero />
       <Equipo />
+      <Contacto />
     </div>
   );
 };
