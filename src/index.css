@@ -2,32 +2,80 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Base + 1rem = 10px */
+/* ====== Fuentes ====== */
+@font-face {
+  font-family: "Test Söhne";
+  src: url("/fonts/TestSoehne-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Test Söhne";
+  src: url("/fonts/TestSoehne-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Test Söhne";
+  src: url("/fonts/TestSoehne-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Times Now";
+  src: url("/fonts/TimesNow-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Times Now";
+  src: url("/fonts/TimesNow-SemiLight.woff2") format("woff2");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ====== Base (1rem = 10px) ====== */
 @layer base {
   html {
     font-size: 62.5%;
-    a { color: inherit; text-decoration: none; }
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
     margin: 0;
     padding: 0;
-    /* Fallback default font - will be overridden by component-specific classes */
-    font-family: "Plus Jakarta Sans", sans-serif;
-    background-color: #0d1b2a; /* fondo oscuro base */
+    /* Fallback; en tus componentes usa .font-soehne o .font-times */
+    font-family: "Test Söhne", system-ui, sans-serif;
+
+    /* Cambia si tu layout usa otro fondo global */
+    background-color: #0d1b2a;
+
+    /* Suavizado para que las fuentes luzcan nítidas */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
-
-    /* Clases de fuentes personalizadas para usar en Tailwind */
-  .font-soehne {
-    font-family: 'Test Söhne', sans-serif;
-  }
-
-  .font-times {
-    font-family: 'Times Now', serif;
+  a {
+    color: inherit;
+    text-decoration: none;
   }
 
   *, *::before, *::after {
     box-sizing: border-box;
+  }
+
+  /* Utilidades de familia tipográfica (usables directo en JSX) */
+  .font-soehne {
+    font-family: "Test Söhne", system-ui, sans-serif;
+  }
+  .font-times {
+    font-family: "Times Now", Georgia, serif;
   }
 }
