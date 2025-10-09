@@ -43,7 +43,7 @@ function AccordionItem({
         ref={headerRef}
         type="button"
         onClick={() => onToggle(index)}
-        className="w-full flex justify-between items-center text-left text-[#000000] text-[3.2rem] md:text-[4rem] lg:text-[4.8rem] font-bold py-[1rem] pb-[0.4rem] bg-transparent focus:outline-none border-none"
+        className="w-full flex justify-between items-center text-left text-[#000000] text-[3.2rem] md:text-[4rem] lg:text-[4.8rem] font-bold py-[1rem] pb-[2.4rem] bg-transparent focus:outline-none border-none"
       >
         {oficina.nombre}
         <span className={`text-[2.4rem] md:text-[3rem] transition-transform duration-300 ${isOpen ? "rotate-45" : ""}`}>
@@ -168,9 +168,9 @@ const Contacto: React.FC = () => {
           <div className="mt-[2rem] flex gap-[4rem]">
             {/* Dirección */}
             <div
-              className="w-[16.5rem] h-[8.1rem] flex flex-col justify-start"
+              className="w-[20.5rem] h-[8.1rem] flex flex-col justify-start"
             >
-              <span className="text-[1.6rem] font-bold text-[#000000] mb-[0.6rem]">
+              <span className="text-[1.6rem] font-bold text-[#000000] mb-[0.0rem]">
                 Dirección
               </span>
               <p className="text-[1.6rem] text-[#000000] font-timesNow leading-snug">
@@ -182,7 +182,7 @@ const Contacto: React.FC = () => {
             <div
               className="w-[11.6rem] h-[6.3rem] flex flex-col justify-start"
             >
-              <span className="text-[1.6rem] font-bold text-[#000000] mb-[0.6rem]">
+              <span className="text-[1.6rem] font-bold text-[#000000] mb-[0.0rem]">
                 Contacto
               </span>
               <p className="text-[1.6rem] text-[#000000] font-timesNow leading-snug">
