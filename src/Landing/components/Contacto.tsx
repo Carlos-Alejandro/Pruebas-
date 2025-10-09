@@ -36,14 +36,14 @@ function AccordionItem({
 
   return (
     <div
-      className="border-b border-[#333333] bg-transparent overflow-hidden transition-all duration-500 ease-in-out"
+      className="border-b border-[#333333] bg-transparent overflow-hidden transition-all duration-500 ease-in-out "
       style={{ maxHeight: maxH }}
     >
       <button
         ref={headerRef}
         type="button"
         onClick={() => onToggle(index)}
-        className="w-full flex justify-between items-center text-left text-[#000000] text-[3.2rem] md:text-[4rem] lg:text-[4.8rem] font-bold py-[1rem] pb-[2.4rem] bg-transparent focus:outline-none border-none"
+        className=" font-[Times_Now] w-full flex justify-between items-center text-left text-[#000000] text-[3.2rem] md:text-[4rem] lg:text-[4.8rem] font-bold py-[1rem] pb-[2.4rem] bg-transparent focus:outline-none border-none"
       >
         {oficina.nombre}
         <span className={`text-[2.4rem] md:text-[3rem] transition-transform duration-300 ${isOpen ? "rotate-45" : ""}`}>
@@ -52,7 +52,7 @@ function AccordionItem({
       </button>
 
       <div ref={contentRef} className="-mt-[1.5rem] px-[0.5rem]">
-        <p className="text-[1.8rem] md:text-[2rem] text-[#333333] font-timesNow py-[0.5rem] bg-transparent">
+        <p className="text-[1.8rem] md:text-[2rem] text-[#333333] font-[Times_Now] py-[0.5rem] bg-transparent">
           {oficina.detalle}
         </p>
       </div>
@@ -100,12 +100,12 @@ const Contacto: React.FC = () => {
         <div
           className="flex flex-col bg-[#FF7800] p-[2rem] xl:relative flex-shrink-0 w-full max-w-[81.9rem] lg:h-[61.3rem] h-auto"
         >
-          <h2 className="text-[3.6rem] font-bold mb-[2rem] text-[#333333] font-testSohne">
+          <h2 className="text-[3.6rem] font-bold mb-[2rem] text-[#333333] font-[Test_Söhne]">
             /CONTACTO
           </h2>
 
           <form className="flex flex-col gap-[2rem] xl:pb-[12rem]" onSubmit={handleSubmit}>
-            <label className="flex flex-col text-[2rem] text-[#333333] max-w-[81.9rem] w-full font-timesNow">
+            <label className="flex flex-col text-[2rem] text-[#333333] max-w-[81.9rem] w-full font-[Times_Now]">
               Nombre
               <input
                 type="text"
@@ -114,7 +114,7 @@ const Contacto: React.FC = () => {
               />
             </label>
 
-            <label className="flex flex-col text-[2rem] text-[#333333] max-w-[81.9rem] w-full font-timesNow">
+            <label className="flex flex-col text-[2rem] text-[#333333] max-w-[81.9rem] w-full font-[Times_Now]">
               Correo Electrónico
               <input
                 type="email"
@@ -123,7 +123,7 @@ const Contacto: React.FC = () => {
               />
             </label>
 
-            <label className="flex flex-col text-[2rem] text-[#333333] max-w-[81.9rem] w-full font-timesNow">
+            <label className="flex flex-col text-[2rem] text-[#333333] max-w-[81.9rem] w-full font-[Times_Now]">
               Mensaje
               <textarea
                 required
@@ -135,7 +135,7 @@ const Contacto: React.FC = () => {
             <button
               type="submit"
               aria-label="Enviar formulario"
-              className="mt-[1.6rem] xl:mt-0 self-end xl:absolute xl:bottom-[2rem] xl:right-[2rem] xl:z-20 text-[2.4rem] md:text-[3rem] xl:text-[4rem] underline text-[#333333] bg-transparent cursor-pointer border-none p-0"
+              className=" font-[Times_Now] mt-[1.6rem] xl:mt-0 self-end xl:absolute xl:bottom-[2rem] xl:right-[2rem] xl:z-20 text-[4rem] md:text-[3rem] xl:text-[4rem] underline text-[#000000] bg-transparent cursor-pointer border-none p-0"
             >
               Send
             </button>
@@ -147,8 +147,8 @@ const Contacto: React.FC = () => {
           className="flex flex-col bg-[#FF7800] p-[2rem] flex-shrink-0 justify-between w-full max-w-[81.9rem] lg:h-[61.3rem] h-auto"
         >
           <div>
-            <h2 className="text-[3.6rem] font-bold mb-[2rem] font-testSohne text-[#000000]">
-              OFICINAS
+            <h2 className="text-[3.6rem] font-bold mb-[2rem] font-[Test_Söhne] text-[#333333]">
+              /OFICINAS
             </h2>
             {/* Acordeón */}
             <div className="flex flex-col">
@@ -168,12 +168,13 @@ const Contacto: React.FC = () => {
           <div className="mt-[2rem] flex gap-[4rem]">
             {/* Dirección */}
             <div
-              className="w-[20.5rem] h-[8.1rem] flex flex-col justify-start"
-            >
-              <span className="text-[1.6rem] font-bold text-[#000000] mb-[0.0rem]">
-                Dirección
-              </span>
-              <p className="text-[1.6rem] text-[#000000] font-timesNow leading-snug">
+              className="w-[16.5rem] h-[8.1rem] flex flex-col justify-start"
+            > 
+            {/* titulos en negritas */}
+              <h1 className="text-[1.6rem] font-bold text-[#000000] mb-[0.0rem] font-[Test_Söhne]  ">
+                DIRECCIÓN
+              </h1>
+              <p className="text-[1.6rem] text-[#000000] font-[Times_Now] leading-snug">
                 Calle 10 #43, Herón Proal, Álvaro Obregón, 01640 CDMX
               </p>
             </div>
@@ -182,10 +183,10 @@ const Contacto: React.FC = () => {
             <div
               className="w-[11.6rem] h-[6.3rem] flex flex-col justify-start"
             >
-              <span className="text-[1.6rem] font-bold text-[#000000] mb-[0.0rem]">
-                Contacto
-              </span>
-              <p className="text-[1.6rem] text-[#000000] font-timesNow leading-snug">
+              <h1 className="text-[1.6rem] font-bold text-[#000000] mb-[0.0rem] font-[Test_Söhne]">
+                CONTACTO
+              </h1>
+              <p className="text-[1.6rem] text-[#000000] font-[Times_Now] leading-snug">
                 jp@circular.uno
                 www.circular.uno
               </p>
