@@ -5,6 +5,7 @@ import Contacto from "../components/Contacto";
 import { Empresa } from "../components/Empresa";
 import LiveClock from "../components/LiveClock";
 import Equipo from "../components/Equipo";
+import Servicios from "../components/Servicios";
 
 const Circular: React.FC = () => {
   return (
