@@ -17,28 +17,6 @@
     background-color: #0d1b2a; /* fondo oscuro base */
   }
 
-/*
-  Font setup:
-  - Place your font files under `public/fonts/` (e.g. public/fonts/TestSohne-Regular.woff2 and public/fonts/TimesNow-Regular.woff2)
-  - These @font-face rules reference those files. If you have different filenames or paths, update accordingly.
-*/
-@font-face {
-  font-family: 'Test Söhne';
-  src: url('/fonts/TestSohne-Regular.woff2') format('woff2'),
-       url('/fonts/TestSohne-Regular.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Times Now';
-  src: url('/fonts/TimesNow-Regular.woff2') format('woff2'),
-       url('/fonts/TimesNow-Regular.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
 
     /* Clases de fuentes personalizadas para usar en Tailwind */
   .font-soehne {
@@ -48,7 +26,6 @@
   .font-times {
     font-family: 'Times Now', serif;
   }
-
 
   *, *::before, *::after {
     box-sizing: border-box;

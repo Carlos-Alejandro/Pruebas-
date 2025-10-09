@@ -2,9 +2,9 @@
 import React from "react";
 import Hero from "../components/Hero";
 import Contacto from "../components/Contacto";
-import Equipo from "../components/Equipo";
 import { Empresa } from "../components/Empresa";
-import Servicios from "../components/Servicios";
+import LiveClock from "../components/LiveClock";
+import Equipo from "../components/Equipo";
 
 const Circular: React.FC = () => {
   return (
@@ -14,6 +14,7 @@ const Circular: React.FC = () => {
       <Servicios />
       <Equipo />
       <Contacto />
+      <LiveClock />
     </div>
   );
 };
