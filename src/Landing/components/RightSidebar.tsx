@@ -6,13 +6,13 @@ import Instagram from "../../assets/Rigthbar/instagram-brands-solid-full-2.svg";
 import Facebook from "../../assets/Rigthbar/facebook.svg";
 
 type RightSidebarProps = {
-  widthRem?: number;       // ancho riel (12.6rem)
-  background?: string;     // #F2F2F2 (riel)
-  borderColor?: string;    // #D9D9D9 (línea)
+  widthRem?: number;
+  background?: string;
+  borderColor?: string;
   showBrand?: boolean;
-  panelRem?: number;       // 48rem (panel)
-  panelBg?: string;        // #F2F2F2 (panel)
-  reserveSpace?: boolean;  // reservar margen a la derecha
+  panelRem?: number;
+  panelBg?: string;
+  reserveSpace?: boolean;
 };
 
 const RightSidebar: React.FC<RightSidebarProps> = ({
@@ -26,7 +26,6 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
 
-  // 1rem = 10px + margen derecho opcional para que el contenido no pase por debajo del riel
   useEffect(() => {
     const root = document.documentElement;
     const prevFont = root.style.fontSize;
@@ -44,7 +43,6 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
     };
   }, [widthRem, open, reserveSpace]);
 
-  // Cerrar con ESC
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
@@ -55,7 +53,6 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
   const railW = useMemo(() => `${widthRem}rem`, [widthRem]);
   const panelW = useMemo(() => `${panelRem}rem`, [panelRem]);
 
-  // Overlay con blur (debajo del riel, encima del contenido)
   const overlay: CSSProperties = {
     position: "fixed",
     inset: 0 as any,
@@ -68,27 +65,20 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
     zIndex: 2147482998,
   };
 
-  // Panel deslizante ANCLADO a la izquierda del riel fijo
   const panelStyle: CSSProperties = {
     position: "fixed",
     top: 0,
-    right: railW,                // << clave: el panel “toca” al riel
+    right: railW,
     width: panelW,
     height: "100vh",
     background: panelBg,
     transform: open ? "translateX(0)" : "translateX(100%)",
     transition: "transform 300ms ease",
-    zIndex: 2147482999,          // debajo del riel, encima del overlay
+    zIndex: 2147482999,
   };
 
-  // ====== Icono Hamburguesa -> X (animado) ======
   const IconHamburgerX: React.FC<{ open: boolean }> = ({ open }) => {
-    // Medidas en rem (match con tu diseño ~35×31 px y trazo “gordo”)
-    const w = 3.516;              // 35.16px
-    const h = 3.149;              // 31.49px
-    const bar = 0.4;              // 4px
-    const gap = 0.9;              // distancia entre barras
-
+    const w = 3.516, h = 3.149, bar = 0.4, gap = 0.9;
     const base: CSSProperties = {
       position: "absolute",
       left: 0,
@@ -101,49 +91,15 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
       transformOrigin: "50% 50%",
       transition: "transform 300ms ease, opacity 200ms ease",
     };
-
     return (
-      <div
-        aria-hidden="true"
-        style={{
-          position: "relative",
-          width: `${w}rem`,
-          height: `${h}rem`,
-        }}
-      >
-        {/* Barra superior */}
-        <span
-          style={{
-            ...base,
-            transform: open
-              ? "translateY(-50%) rotate(45deg)"
-              : `translateY(calc(-50% - ${gap}rem)) rotate(0deg)`,
-          }}
-        />
-        {/* Barra media */}
-        <span
-          style={{
-            ...base,
-            transform: open ? "translateY(-50%) scaleX(0)" : "translateY(-50%) scaleX(1)",
-            opacity: open ? 0 : 1,
-          }}
-        />
-        {/* Barra inferior */}
-        <span
-          style={{
-            ...base,
-            transform: open
-              ? "translateY(-50%) rotate(-45deg)"
-              : `translateY(calc(-50% + ${gap}rem)) rotate(0deg)`,
-          }}
-        />
+      <div aria-hidden="true" style={{ position: "relative", width: `${w}rem`, height: `${h}rem` }}>
+        <span style={{ ...base, transform: open ? "translateY(-50%) rotate(45deg)" : `translateY(calc(-50% - ${gap}rem))` }} />
+        <span style={{ ...base, transform: open ? "translateY(-50%) scaleX(0)" : "translateY(-50%)", opacity: open ? 0 : 1 }} />
+        <span style={{ ...base, transform: open ? "translateY(-50%) rotate(-45deg)" : `translateY(calc(-50% + ${gap}rem))` }} />
       </div>
     );
   };
 
-  // ---- UI ----
-
-  // Riel fijo (siempre visible)
   const rail = (
     <aside
       className="border-l pointer-events-auto"
@@ -155,40 +111,33 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
         width: railW,
         background,
         borderLeftColor: borderColor,
-        zIndex: 2147483000, // por encima de panel y overlay
+        zIndex: 2147483000,
       }}
       aria-label="Barra lateral derecha"
     >
-      {/* Top: botón (hamburguesa -> X) */}
       <div className="flex items-center justify-center h-[6.4rem]">
         <button
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Cerrar menú" : "Abrir menú"}
           aria-expanded={open}
-          className="
-            p-[0.6rem] rounded-[0.8rem]
-            bg-[#F2F2F2] hover:bg-[#ECECEC]
-            transition border-0 outline-none focus:outline-none
-          "
+          className="p-[0.6rem] rounded-[0.8rem] bg-[#F2F2F2] hover:bg-[#ECECEC] transition border-0 outline-none focus:outline-none"
           style={{ WebkitTapHighlightColor: "transparent" }}
         >
           <IconHamburgerX open={open} />
         </button>
       </div>
 
-      {/* Centro: marca vertical */}
       {showBrand && (
         <div className="h-[calc(100%-6.4rem-9.6rem)] flex items-center justify-center">
           <img
             src={Brand}
             alt="@circular"
-            className="w-[6.414rem] h-[25.64rem] rotate-180 select-none pointer-events-none"
+            className="w-[6.414rem] h-[25.64rem] select-none pointer-events-none"
             draggable={false}
           />
         </div>
       )}
 
-      {/* Bottom: redes */}
       <div className="h-[9.6rem] flex flex-col items-center justify-end gap-[2rem] pb-[2.4rem]">
         <a href="#" aria-label="Instagram" className="hover:opacity-80">
           <img src={Instagram} alt="instagram" className="w-[5.2rem] h-[5.2rem]" />
@@ -200,7 +149,6 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
     </aside>
   );
 
-  // Panel pegado al riel (sin duplicar riel) — se cierra con overlay o con el mismo botón del riel
   const panel = (
     <>
       <div style={overlay} onClick={() => setOpen(false)} aria-hidden="true" />
@@ -210,20 +158,32 @@ const RightSidebar: React.FC<RightSidebarProps> = ({
         style={panelStyle}
         aria-label="Menú lateral"
       >
-        {/* Navegación (idéntica al mock) */}
-        <nav className="px-[2.4rem] pt-[1.6rem] select-none">
-          <a className="block text-[4.8rem] font-extrabold text-black leading-[6.4rem] mb-[2.4rem]" href="#empresa">
+        {/* Navegación con padding solicitado */}
+        <nav className="pt-[6.5rem] pl-[4rem] pr-[2.4rem] select-none">
+          {/* Color forzado a negro por si hay estilos globales */}
+          <a
+            href="#empresa"
+            style={{ color: "#0F0F0F" }}
+            className="block text-[4.8rem] leading-[6.4rem] font-extrabold mb-[2.4rem]"
+          >
             EMPRESA
           </a>
-          <a className="block text-[3.2rem] font-semibold text-[#989898] tracking-[0.02em] leading-[4.4rem] mb-[1.6rem]" href="#servicios">
+
+          <a
+            href="#servicios"
+            className="block text-[4.8rem] leading-[6.4rem] font-semibold tracking-[0.02em] text-[#989898] mb-[1.6rem]"
+          >
             SERVICIOS
           </a>
-          <a className="block text-[3.2rem] font-semibold text-[#989898] tracking-[0.02em] leading-[4.4rem]" href="#contacto">
+          <a
+            href="#contacto"
+            className="block text-[4.8rem] leading-[6.4rem] font-semibold tracking-[0.02em] text-[#989898]"
+          >
             CONTACTO
           </a>
         </nav>
 
-        {/* Dirección / Contacto (negro) */}
+        {/* Dirección / Contacto */}
         <div className="mt-auto px-[2.4rem] pb-[2.4rem] text-black">
           <div className="mb-[1.6rem]">
             <div className="text-[1.6rem] font-semibold leading-[2rem]">DIRECCIÓN</div>
