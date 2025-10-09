@@ -40,6 +40,16 @@
   font-display: swap;
 }
 
+    /* Clases de fuentes personalizadas para usar en Tailwind */
+  .font-soehne {
+    font-family: 'Test Söhne', sans-serif;
+  }
+
+  .font-times {
+    font-family: 'Times Now', serif;
+  }
+
+
   *, *::before, *::after {
     box-sizing: border-box;
   }
