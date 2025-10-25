@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap');
+@import "./assets/fonts/fonts.css";
 @import "tailwindcss";
 
 /* En tu index.css o global.css */
@@ -19,6 +21,7 @@ ul {
 html {
   font-size: 62.5%; /* 16px × 0.625 = 10px → ahora 1rem = 10px */
 }
+
 
 @font-face {
   font-family: "Montserrat";
@@ -55,6 +58,7 @@ html {
     font-family: "Montserrat", sans-serif;
   }
 }
+
 
 /* Importar fuentes personalizadas
 @import './assets/fonts/fonts.css';

@@ -2,6 +2,7 @@ import NeroliBuilding from '../assets/images/Neroli.png';
 
 export default function FooterBase() {
   return (
+    <section>
     <footer
       className="
         w-[192rem] max-w-[100vw]
@@ -351,6 +352,7 @@ export default function FooterBase() {
         </div>
       </div>
     </footer>
+    </section>
   );
 }
 
