@@ -1,4 +1,6 @@
 import React,{useState} from "react";
+import ProductDetail, { type DetailProduct } from "./ProductDetail";
+
 import ImgBuro from "../assets/images/category/Buro.png";
 import ImgEstanteria from "../assets/images/category/Estanteria.png";
 import ImgMesa from "../assets/images/category/Mesa.png";
@@ -44,7 +46,13 @@ const productsMock:ProductItem[]=[
   {id:"9",name:"Próximamente…",price:0,currency:"MXN",status:"COMING SOON",img:ImgMesa}
 ];
 
-const ProductCard:React.FC<{product:ProductItem}>=({product})=>{
+/* ---- Tarjeta individual ----
+   Agregamos prop onViewMore para avisar al grid cuando el user quiere ver detalle
+*/
+const ProductCard:React.FC<{
+  product:ProductItem;
+  onViewMore:(p:ProductItem)=>void;
+}> = ({product,onViewMore})=>{
   const[showBtns,setShowBtns]=useState(false);
 
   return(
@@ -54,16 +62,9 @@ const ProductCard:React.FC<{product:ProductItem}>=({product})=>{
         w-full
         max-w-full
 
-        /* md >=768px: cards más compactas (~360px) */
         md:w-[36rem] md:max-w-[36rem] md:flex-shrink-0
-
-        /* xl >=1280px: un poco más anchas (~400px) */
         xl:w-[40rem] xl:max-w-[40rem] xl:flex-shrink-0
-
-        /* 2xl >=1536px: ~450px para desktop 1500-1600px */
         2xl:w-[45rem] 2xl:max-w-[45rem] 2xl:flex-shrink-0
-
-        /* >=1900px: restaurar Figma 59.3rem (593px) */
         min-[1900px]:w-[59.3rem] min-[1900px]:max-w-[59.3rem] min-[1900px]:flex-shrink-0
 
         mt-[8rem]
@@ -125,8 +126,8 @@ const ProductCard:React.FC<{product:ProductItem}>=({product})=>{
             <button
               className="
                 w-1/2
-                h-[5rem]          /* mobile / md ~50px */
-                xl:h-[5.8rem]     /* desktop 58px Figma */
+                h-[5rem]
+                xl:h-[5.8rem]
                 flex items-center justify-center
                 text-center
                 font-bold
@@ -138,6 +139,10 @@ const ProductCard:React.FC<{product:ProductItem}>=({product})=>{
                 backgroundColor:CTA_LEFT_BG,
                 color:CTA_TEXT,
                 letterSpacing:"0"
+              }}
+              onClick={(e)=>{
+                e.stopPropagation(); // para que no vuelva a togglear
+                onViewMore(product);
               }}
             >
               VER MÁS
@@ -160,6 +165,10 @@ const ProductCard:React.FC<{product:ProductItem}>=({product})=>{
                 backgroundColor:CTA_RIGHT_BG,
                 color:CTA_TEXT,
                 letterSpacing:"0"
+              }}
+              onClick={(e)=>{
+                e.stopPropagation();
+                /* aquí iría lógica de carrito */
               }}
             >
               AÑADIR AL CARRO
@@ -253,7 +262,24 @@ const ProductCard:React.FC<{product:ProductItem}>=({product})=>{
   );
 };
 
+/* ---- GRID PRINCIPAL ----
+   acá controlamos si mostramos la lista o el detalle
+*/
 const ProductGrid:React.FC=()=>{
+
+  const [selectedProduct, setSelectedProduct] = useState<DetailProduct|null>(null);
+
+  // si hay producto seleccionado → render detalle
+  if(selectedProduct){
+    return (
+      <ProductDetail
+        product={selectedProduct}
+        onBack={()=>setSelectedProduct(null)}
+      />
+    );
+  }
+
+  // si NO hay producto seleccionado → renderizamos el grid + paginado (tu diseño)
   return(
     <section
       className="w-full flex justify-center overflow-x-hidden"
@@ -269,11 +295,15 @@ const ProductGrid:React.FC=()=>{
             lg:grid-cols-3        /* pantallas grandes (y más grandes): SIEMPRE 3 máx */
             gap-x-[3.5rem]
             gap-y-[9rem]
-            justify-items-center  /* centra cada card en su celda */
+            justify-items-center
           "
         >
           {productsMock.map(p=>(
-            <ProductCard key={p.id} product={p}/>
+            <ProductCard
+              key={p.id}
+              product={p}
+              onViewMore={(prod)=>setSelectedProduct(prod)}
+            />
           ))}
         </div>
 
@@ -284,28 +314,28 @@ const ProductGrid:React.FC=()=>{
             flex
             flex-col
             items-center
-            mt-[10.7rem]   /* separación desde el grid: 10.7rem como dijiste */
+            mt-[10.7rem]
           "
         >
-          {/* contenedor de los 2 botones lado a lado */}
+          {/* caja de paginación */}
           <div
             className="
               flex
               w-full
-              max-w-[185.1rem]          /* para que no se dispare infinito en super wides */
+              max-w-[185.1rem]
               border-black
-              border-[0.1rem]           /* 1px => 0.1rem */
+              border-[0.1rem]
             "
             style={{
               backgroundColor: SECTION_BG,
             }}
           >
-            {/* BOTÓN: PÁGINA ANTERIOR (fondo crema, borde solo viene de afuera) */}
+            {/* PÁGINA ANTERIOR */}
             <button
               className="
                 flex-1
                 flex items-center justify-center text-center
-                h-[12.1rem]            /* 121px => 12.1rem */
+                h-[12.1rem]
                 uppercase
                 font-medium
                 text-[2rem] leading-[2rem]
@@ -314,8 +344,8 @@ const ProductGrid:React.FC=()=>{
                 tracking-[0]
               "
               style={{
-                backgroundColor: "#F1EBDF", // fondo claro
-                color: "#261900",           // texto café oscuro
+                backgroundColor: "#F1EBDF",
+                color: "#261900",
                 fontFamily: "'Montserrat', sans-serif",
                 letterSpacing: "0"
               }}
@@ -323,7 +353,7 @@ const ProductGrid:React.FC=()=>{
               PÁGINA ANTERIOR
             </button>
 
-            {/* BOTÓN: PÁGINA SIGUIENTE (fondo oscuro #261900, texto crema) */}
+            {/* PÁGINA SIGUIENTE */}
             <button
               className="
                 flex-1
