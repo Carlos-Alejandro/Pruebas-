@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import React, { useState } from "react";
 import ProductDetail, { type DetailProduct } from "./ProductDetail";
 
 import ImgBuro from "../assets/images/category/Buro.png";
@@ -10,52 +10,120 @@ import ImgMesaEnLaPicina from "../assets/images/category/Mesaenlapicina.png";
 import ImgSilla from "../assets/images/category/Silla.png";
 import ImgSillon from "../assets/images/category/Sillon.png";
 
-type ProductStatus="SOLD OUT"|"COMING SOON"|"AVAILABLE";
-interface ProductItem{
-  id:string;
-  name:string;
-  price:number;
-  currency:string;
-  status:ProductStatus;
-  img:string;
+/* ---------- Tipos ---------- */
+
+type ProductStatus = "SOLD OUT" | "COMING SOON" | "AVAILABLE";
+
+interface ProductItem {
+  id: string;
+  name: string;
+  price: number;
+  currency: string;
+  status: ProductStatus;
+  img: string;
 }
 
-/* Colores finales */
-const CTA_LEFT_BG  ="#BA9C76";   // VER MÁS
-const CTA_RIGHT_BG ="#3a3f1e";   // AÑADIR AL CARRO
-const CTA_TEXT     ="#F1EBDF";   // texto botones
-const SECTION_BG   ="#F1EBDF";   // fondo crema
+/* ---------- Constantes de estilo ---------- */
 
-/* $65.300,00 */
-function formatPriceES(value:number){
-  return value.toLocaleString("es-ES",{
-    minimumFractionDigits:2,
-    maximumFractionDigits:2,
+const CTA_LEFT_BG = "#BA9C76";   // VER MÁS
+const CTA_RIGHT_BG = "#3a3f1e";  // AÑADIR AL CARRO
+const CTA_TEXT = "#F1EBDF";      // texto botones
+const SECTION_BG = "#F1EBDF";    // fondo crema
+
+/* Formato de precio tipo $65.300,00 */
+function formatPriceES(value: number) {
+  return value.toLocaleString("es-ES", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   });
 }
 
-const productsMock:ProductItem[]=[
-  {id:"1",name:"Rusim Sófa",price:65300,currency:"MXN",status:"SOLD OUT",img:ImgSillon},
-  {id:"2",name:"Rusim Coffee T",price:33700,currency:"MXN",status:"SOLD OUT",img:ImgMesaConFiguras},
-  {id:"3",name:"Rusim Glass Side B",price:55350,currency:"MXN",status:"SOLD OUT",img:ImgEstanteria},
-  {id:"4",name:"Rusim Bed Queen",price:64400,currency:"MXN",status:"SOLD OUT",img:ImgMesaEnLaPicina},
-  {id:"5",name:"Rusim Buro",price:11900,currency:"MXN",status:"SOLD OUT",img:ImgBuro},
-  {id:"6",name:"Forjo Desk",price:49300,currency:"MXN",status:"SOLD OUT",img:ImgMesaConLibro},
-  {id:"7",name:"Forjo Shelving",price:89300,currency:"MXN",status:"SOLD OUT",img:ImgEstanteria},
-  {id:"8",name:"Forjo Chair",price:39000,currency:"MXN",status:"SOLD OUT",img:ImgSilla},
-  {id:"9",name:"Próximamente…",price:0,currency:"MXN",status:"COMING SOON",img:ImgMesa}
+/* ---------- Mock data ---------- */
+
+const productsMock: ProductItem[] = [
+  {
+    id: "1",
+    name: "Rusim Sófa",
+    price: 65300,
+    currency: "MXN",
+    status: "SOLD OUT",
+    img: ImgSillon,
+  },
+  {
+    id: "2",
+    name: "Rusim Coffee T",
+    price: 33700,
+    currency: "MXN",
+    status: "SOLD OUT",
+    img: ImgMesaConFiguras,
+  },
+  {
+    id: "3",
+    name: "Rusim Glass Side B",
+    price: 55350,
+    currency: "MXN",
+    status: "SOLD OUT",
+    img: ImgEstanteria,
+  },
+  {
+    id: "4",
+    name: "Rusim Bed Queen",
+    price: 64400,
+    currency: "MXN",
+    status: "SOLD OUT",
+    img: ImgMesaEnLaPicina,
+  },
+  {
+    id: "5",
+    name: "Rusim Buro",
+    price: 11900,
+    currency: "MXN",
+    status: "SOLD OUT",
+    img: ImgBuro,
+  },
+  {
+    id: "6",
+    name: "Forjo Desk",
+    price: 49300,
+    currency: "MXN",
+    status: "SOLD OUT",
+    img: ImgMesaConLibro,
+  },
+  {
+    id: "7",
+    name: "Forjo Shelving",
+    price: 89300,
+    currency: "MXN",
+    status: "SOLD OUT",
+    img: ImgEstanteria,
+  },
+  {
+    id: "8",
+    name: "Forjo Chair",
+    price: 39000,
+    currency: "MXN",
+    status: "SOLD OUT",
+    img: ImgSilla,
+  },
+  {
+    id: "9",
+    name: "Próximamente…",
+    price: 0,
+    currency: "MXN",
+    status: "COMING SOON",
+    img: ImgMesa,
+  },
 ];
 
-/* ---- Tarjeta individual ----
-   Agregamos prop onViewMore para avisar al grid cuando el user quiere ver detalle
-*/
-const ProductCard:React.FC<{
-  product:ProductItem;
-  onViewMore:(p:ProductItem)=>void;
-}> = ({product,onViewMore})=>{
-  const[showBtns,setShowBtns]=useState(false);
+/* ---------- Tarjeta individual ---------- */
 
-  return(
+const ProductCard: React.FC<{
+  product: ProductItem;
+  onViewMore: (p: ProductItem) => void;
+}> = ({ product, onViewMore }) => {
+  const [showBtns, setShowBtns] = useState(false);
+
+  return (
     <div
       className="
         flex flex-col bg-transparent
@@ -69,13 +137,13 @@ const ProductCard:React.FC<{
 
         mt-[8rem]
       "
-      style={{backgroundColor:SECTION_BG}}
+      style={{ backgroundColor: SECTION_BG }}
     >
-      {/* IMAGEN mantiene proporción 593x697 pero escala con el ancho */}
+      {/* IMAGEN: mantiene ratio 593x697, escala con el width de la card */}
       <div
         className="relative w-full cursor-pointer"
-        style={{aspectRatio:"593 / 697"}}
-        onClick={()=>setShowBtns(v=>!v)}
+        style={{ aspectRatio: "593 / 697" }}
+        onClick={() => setShowBtns((v) => !v)}
       >
         <img
           src={product.img}
@@ -83,7 +151,7 @@ const ProductCard:React.FC<{
           className="h-full w-full object-cover"
         />
 
-        {/* overlay SOLD OUT */}
+        {/* Overlay SOLD OUT / COMING SOON */}
         <div
           className="
             absolute inset-0
@@ -100,16 +168,18 @@ const ProductCard:React.FC<{
               xl:text-[2.4rem] xl:leading-[2.4rem]
             "
             style={{
-              color:"#F1EBDF",
-              fontFamily:"'Montserrat', sans-serif",
-              letterSpacing:"0",
+              color: "#F1EBDF",
+              fontFamily: "'Montserrat', sans-serif",
+              letterSpacing: "0",
             }}
           >
-            {product.status==="COMING SOON"?"COMING SOON":product.status}
+            {product.status === "COMING SOON"
+              ? "COMING SOON"
+              : product.status}
           </span>
         </div>
 
-        {/* BOTONES abajo dentro de la imagen */}
+        {/* Botones sobre la imagen, abajo */}
         {showBtns && (
           <div
             className="
@@ -119,7 +189,7 @@ const ProductCard:React.FC<{
               tracking-[0]
             "
             style={{
-              fontFamily:"'Montserrat', sans-serif"
+              fontFamily: "'Montserrat', sans-serif",
             }}
           >
             {/* VER MÁS */}
@@ -136,13 +206,13 @@ const ProductCard:React.FC<{
                 xl:text-[1.4rem] xl:leading-[1.4rem]
               "
               style={{
-                backgroundColor:CTA_LEFT_BG,
-                color:CTA_TEXT,
-                letterSpacing:"0"
+                backgroundColor: CTA_LEFT_BG,
+                color: CTA_TEXT,
+                letterSpacing: "0",
               }}
-              onClick={(e)=>{
-                e.stopPropagation(); // para que no vuelva a togglear
-                onViewMore(product);
+              onClick={(e) => {
+                e.stopPropagation(); // no vuelvas a togglear showBtns
+                onViewMore(product); // avisamos al grid que abra detalle
               }}
             >
               VER MÁS
@@ -162,13 +232,13 @@ const ProductCard:React.FC<{
                 xl:text-[1.4rem] xl:leading-[1.4rem]
               "
               style={{
-                backgroundColor:CTA_RIGHT_BG,
-                color:CTA_TEXT,
-                letterSpacing:"0"
+                backgroundColor: CTA_RIGHT_BG,
+                color: CTA_TEXT,
+                letterSpacing: "0",
               }}
-              onClick={(e)=>{
+              onClick={(e) => {
                 e.stopPropagation();
-                /* aquí iría lógica de carrito */
+                // lógica carrito aquí si quieres
               }}
             >
               AÑADIR AL CARRO
@@ -177,15 +247,15 @@ const ProductCard:React.FC<{
         )}
       </div>
 
-      {/* FILA NOMBRE (izq) + PRECIO (der) */}
+      {/* Nombre producto + Precio */}
       <div
         className="
           flex flex-wrap items-baseline justify-between
           px-[1.6rem] py-[1.6rem]
         "
-        style={{backgroundColor:SECTION_BG}}
+        style={{ backgroundColor: SECTION_BG }}
       >
-        {/* NOMBRE DEL PRODUCTO */}
+        {/* Nombre */}
         <span
           className="
             font-medium
@@ -194,23 +264,23 @@ const ProductCard:React.FC<{
             xl:text-[2.8rem] xl:leading-[2.8rem]
           "
           style={{
-            color:"#666666",
-            fontFamily:"'Montserrat', sans-serif",
-            letterSpacing:"0",
+            color: "#666666",
+            fontFamily: "'Montserrat', sans-serif",
+            letterSpacing: "0",
           }}
         >
           {product.name}
         </span>
 
-        {/* PRECIO + MXN */}
-        {product.price>0?(
+        {/* Precio + MXN */}
+        {product.price > 0 ? (
           <span
             className="
               flex flex-wrap items-baseline gap-[0.4rem] text-right
             "
             style={{
-              fontFamily:"'Montserrat', sans-serif",
-              color:"#261900",
+              fontFamily: "'Montserrat', sans-serif",
+              color: "#261900",
             }}
           >
             <span
@@ -221,7 +291,7 @@ const ProductCard:React.FC<{
                 xl:text-[2.4rem] xl:leading-[2.4rem]
               "
               style={{
-                letterSpacing:"0",
+                letterSpacing: "0",
               }}
             >
               ${formatPriceES(product.price)}
@@ -236,13 +306,14 @@ const ProductCard:React.FC<{
                 xl:text-[1.2rem] xl:leading-[1.2rem]
               "
               style={{
-                letterSpacing:"0",
+                letterSpacing: "0",
               }}
             >
               {product.currency}
             </span>
           </span>
-        ):(
+        ) : (
+          // cuando no hay precio (Próximamente…)
           <span
             className="
               font-semibold
@@ -251,9 +322,9 @@ const ProductCard:React.FC<{
               xl:text-[2.4rem] xl:leading-[2.4rem]
             "
             style={{
-              fontFamily:"'Montserrat', sans-serif",
-              color:"#261900",
-              letterSpacing:"0",
+              fontFamily: "'Montserrat', sans-serif",
+              color: "#261900",
+              letterSpacing: "0",
             }}
           />
         )}
@@ -262,80 +333,84 @@ const ProductCard:React.FC<{
   );
 };
 
-/* ---- GRID PRINCIPAL ----
-   acá controlamos si mostramos la lista o el detalle
-*/
-const ProductGrid:React.FC=()=>{
+/* ---------- Grid principal ---------- */
 
-  const [selectedProduct, setSelectedProduct] = useState<DetailProduct|null>(null);
+const ProductGrid: React.FC = () => {
+  // esto controla si estamos en la vista normal o en el detalle
+  const [selectedProduct, setSelectedProduct] = useState<DetailProduct | null>(
+    null
+  );
 
-  // si hay producto seleccionado → render detalle
-  if(selectedProduct){
+  // 1. Si hay producto seleccionado → mostramos SOLO el detalle
+  if (selectedProduct) {
     return (
       <ProductDetail
         product={selectedProduct}
-        onBack={()=>setSelectedProduct(null)}
+        onBack={() => setSelectedProduct(null)}
       />
     );
   }
 
-  // si NO hay producto seleccionado → renderizamos el grid + paginado (tu diseño)
-  return(
+  // 2. Si NO hay producto seleccionado → mostramos el grid y la paginación
+  return (
     <section
       className="w-full flex justify-center overflow-x-hidden"
-      style={{backgroundColor:SECTION_BG}}
+      style={{ backgroundColor: SECTION_BG }}
     >
       <div className="w-full px-[0rem] py-[3.2rem]">
         {/* GRID DE PRODUCTOS */}
         <div
           className="
             grid
-            grid-cols-1           /* mobile: 1 tarjeta por fila */
-            sm:grid-cols-2        /* pantallas medianas: 2 por fila */
-            lg:grid-cols-3        /* pantallas grandes (y más grandes): SIEMPRE 3 máx */
+            grid-cols-1           /* mobile: 1 tarjeta */
+            sm:grid-cols-2        /* tablet / mediana: 2 tarjetas */
+            lg:grid-cols-3        /* pantallas grandes+: 3 tarjetas */
             gap-x-[3.5rem]
             gap-y-[9rem]
             justify-items-center
           "
         >
-          {productsMock.map(p=>(
+          {productsMock.map((p) => (
             <ProductCard
               key={p.id}
               product={p}
-              onViewMore={(prod)=>setSelectedProduct(prod)}
+              onViewMore={(prod) => setSelectedProduct(prod)}
             />
           ))}
         </div>
 
-        {/* PAGINACIÓN */}
+        {/* PAGINACIÓN ABAJO */}
         <div
           className="
             w-full
             flex
             flex-col
             items-center
-            mt-[10.7rem]
+            mt-[10.7rem]  /* separación de 10.7rem que pediste */
           "
         >
-          {/* caja de paginación */}
+          {/* contenedor de los 2 botones lado a lado */}
           <div
             className="
               flex
               w-full
-              max-w-[185.1rem]
+              max-w-[185.1rem]           /* ancho máx ~1851px */
               border-black
-              border-[0.1rem]
+              border-[0.1rem]            /* 1px = 0.1rem */
             "
             style={{
               backgroundColor: SECTION_BG,
             }}
           >
-            {/* PÁGINA ANTERIOR */}
+            {/* BOTÓN: PÁGINA ANTERIOR
+                - fondo crema (igual que bg)
+                - texto café #261900
+                - NO tiene fondo oscuro */}
             <button
               className="
                 flex-1
                 flex items-center justify-center text-center
-                h-[12.1rem]
+                h-[12.1rem]            /* 121px => 12.1rem */
                 uppercase
                 font-medium
                 text-[2rem] leading-[2rem]
@@ -347,13 +422,15 @@ const ProductGrid:React.FC=()=>{
                 backgroundColor: "#F1EBDF",
                 color: "#261900",
                 fontFamily: "'Montserrat', sans-serif",
-                letterSpacing: "0"
+                letterSpacing: "0",
               }}
             >
               PÁGINA ANTERIOR
             </button>
 
-            {/* PÁGINA SIGUIENTE */}
+            {/* BOTÓN: PÁGINA SIGUIENTE
+                - fondo oscuro #261900
+                - texto crema #F1EBDF */}
             <button
               className="
                 flex-1
@@ -370,7 +447,7 @@ const ProductGrid:React.FC=()=>{
               style={{
                 backgroundColor: "#261900",
                 fontFamily: "'Montserrat', sans-serif",
-                letterSpacing: "0"
+                letterSpacing: "0",
               }}
             >
               PÁGINA SIGUIENTE
