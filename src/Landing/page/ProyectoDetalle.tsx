@@ -37,8 +37,6 @@ export default function ProyectoDetalle() {
   }
 
   const imgUrl = resolveFotoUrl(project.file);
-
-  // Descripción en un solo párrafo (sin saltos de línea)
   const description = (project.description || "").replace(/\n+/g, " ").trim();
 
   return (
@@ -48,74 +46,70 @@ export default function ProyectoDetalle() {
         <Link to="/" className="hover:text-neutral-700">← Volver</Link>
       </div>
 
-      {/* Layout: izquierda fija (título), derecha = fila scrolleable (imagen + texto) */}
-      <section className="grid grid-cols-12 gap-6 md:gap-10 items-start">
-        {/* IZQUIERDA: Título / lugar / año (alineado a la derecha en desktop) */}
-        <aside className="col-span-12 md:col-span-3 flex flex-col items-start md:items-end text-left md:text-right">
+      {/* TODO SCROLL HORIZONTAL: izquierda (título) + imagen + texto */}
+      <HScrollRow>
+        {/* -- Columna IZQUIERDA dentro del carril (scrollable) -- */}
+        <aside className="shrink-0 w-[240px] md:w-[260px] pr-4 text-right">
           <h1 className="font-medium text-[18px] md:text-[20px] leading-tight text-neutral-900">
             {project.title}
           </h1>
-          <div className="mt-2 text-[12px] text-neutral-500 tracking-wide uppercase">
+          <div className="mt-2 text-[12px] text-neutral-500">
             {project.place}
           </div>
           {project.year && (
-            <div className="mt-2 text-[12px] text-neutral-500">{project.year}</div>
+            <div className="mt-2 text-[12px] text-neutral-500">
+              {project.year}
+            </div>
           )}
         </aside>
 
-        {/* DERECHA: fila horizontal scrolleable con IMAGEN a la izquierda y TEXTO a la derecha */}
-        <HScrollRow className="col-span-12 md:col-span-9">
-          {/* IMAGEN (ancha, sin escalado forzado para evitar pixelado) */}
-          <div
-            className="inline-block"
-            data-cursor="drag"
-            data-cursor-size="92"
-            data-cursor-label="Arrastra"
-          >
-            <img
-              src={imgUrl}
-              alt={project.title}
-              className="block h-auto max-h-[78vh] w-auto select-none"
-              draggable={false}
-              decoding="async"
-              loading="eager"
-              fetchPriority="high"
-              style={{ imageRendering: "auto" }}
-            />
-          </div>
+        {/* -- IMAGEN (no se encoge) -- */}
+        <div
+          className="inline-block shrink-0"
+          data-cursor="drag"
+          data-cursor-size="92"
+          data-cursor-label="Arrastra"
+        >
+          <img
+            src={imgUrl}
+            alt={project.title}
+            className="block h-auto max-h-[78vh] w-auto select-none"
+            draggable={false}
+            decoding="async"
+            loading="eager"
+            fetchPriority="high"
+            style={{ imageRendering: "auto" }}
+          />
+        </div>
 
-          {/* TEXTO (columna fija a la derecha de la imagen; footer pegado al fondo) */}
-          <article className="w-[560px] lg:w-[600px] flex flex-col text-[13px] leading-relaxed text-neutral-800 pr-4">
-            <p className="leading-[1.55]">
-              {description}
-            </p>
+        {/* -- TEXTO (no se encoge, footer pegado abajo) -- */}
+        <article className="w-[560px] lg:w-[600px] shrink-0 flex flex-col text-[13px] leading-relaxed text-neutral-800 pr-4">
+          <p className="leading-[1.55]">{description}</p>
 
-            {/* Footer pegado al pie de la imagen gracias a mt-auto */}
-            {(project.brief || project.categories) && (
-              <div className="mt-auto pt-8">
-                {project.brief && (
-                  <div className="text-[13px] text-neutral-800">
-                    {project.brief}
-                  </div>
-                )}
-                {project.categories && (
-                  <div className="mt-1 text-[11px] text-neutral-500">
-                    {project.categories}
-                  </div>
-                )}
-              </div>
-            )}
-          </article>
-        </HScrollRow>
-      </section>
+          {(project.brief || project.categories) && (
+            <div className="mt-auto pt-8">
+              {project.brief && (
+                <div className="text-[13px] text-neutral-800">
+                  {project.brief}
+                </div>
+              )}
+              {project.categories && (
+                <div className="mt-1 text-[11px] text-neutral-500">
+                  {project.categories}
+                </div>
+              )}
+            </div>
+          )}
+        </article>
+      </HScrollRow>
     </main>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* Componente de fila scrolleable horizontal (drag + inercia + wheel) */
+/* Carril scrolleable horizontal (drag + inercia + wheel horizontal)  */
 /* ------------------------------------------------------------------ */
-import { useEffect, useRef, PropsWithChildren } from "react";
+import { useEffect, useRef, type PropsWithChildren } from "react";
 
 function HScrollRow({
   children,
@@ -127,7 +121,6 @@ function HScrollRow({
     const el = wrapRef.current;
     if (!el) return;
 
-    // Drag con inercia (solo horizontal)
     let isDown = false;
     let startX = 0;
     let startLeft = 0;
@@ -193,7 +186,7 @@ function HScrollRow({
       raf = requestAnimationFrame(momentum);
     };
 
-    // Rueda: si el gesto es mayormente horizontal, lo manejamos; si es vertical, dejamos que la página scrollee normal
+    // Si el gesto es mayormente horizontal, lo tomamos nosotros.
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
         e.preventDefault();
@@ -201,7 +194,6 @@ function HScrollRow({
       }
     };
 
-    // Listeners
     const md = (e: MouseEvent) => { e.preventDefault(); onDown(e.clientX); };
     const mm = (e: MouseEvent) => { e.preventDefault(); onMove(e.clientX); };
     const mu = () => onUp();
@@ -239,11 +231,10 @@ function HScrollRow({
         "no-scrollbar overflow-x-auto overflow-y-hidden cursor-grab select-none " +
         className
       }
-      // Permite que en móvil el gesto vertical siga haciendo scroll de la página
-      style={{ touchAction: "pan-y" }}
+      style={{ touchAction: "pan-y" }} // vertical sigue scrolleando la página
     >
-      {/* Fila “real” (imagen + texto). inline-flex para mantener todo en una fila */}
-      <div className="inline-flex gap-10 items-stretch pr-1">
+      {/* w-max: el ancho es el del contenido; aparece scroll si se excede */}
+      <div className="flex w-max gap-10 items-stretch pr-1">
         {children}
       </div>
     </div>
