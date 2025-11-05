@@ -1,0 +1,37 @@
+/* 1) Fuentes locales (woff/woff2) */
+@import "./assets/Fonts/WEB/fonts.css";
+
+/* 2) Tailwind v4 */
+@import "tailwindcss";
+
+/* 3) Tema: usa Cabinet Grotesk como sans por defecto */
+@theme {
+  /* Tailwind v4 toma esta var para font-sans */
+  --font-sans: "Cabinet Grotesk", ui-sans-serif, system-ui, -apple-system,
+               "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+               "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+               "Noto Color Emoji";
+}
+
+/* 4) Ajustes globales ligeros */
+:root { color-scheme: light; }
+html, body, #root { height: 100%; }
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 5) Cursor custom (solo en dispositivos con puntero fino) */
+@media (pointer: fine) {
+  html, body, * { cursor: none !important; }
+  input, textarea { cursor: text !important; }
+  a, button { cursor: none !important; }
+}
+
+/* 6) Ocultar scrollbars donde uses la clase .no-scrollbar */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* 7) Suaviza el scroll */
+html { scroll-behavior: smooth; }
