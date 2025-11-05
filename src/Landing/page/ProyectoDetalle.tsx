@@ -50,12 +50,14 @@ export default function ProyectoDetalle() {
 
       {/* Layout: izquierda fija (título), derecha = fila scrolleable (imagen + texto) */}
       <section className="grid grid-cols-12 gap-6 md:gap-10 items-start">
-        {/* IZQUIERDA: Título / lugar / año */}
-        <aside className="col-span-12 md:col-span-3">
+        {/* IZQUIERDA: Título / lugar / año (alineado a la derecha en desktop) */}
+        <aside className="col-span-12 md:col-span-3 flex flex-col items-start md:items-end text-left md:text-right">
           <h1 className="font-medium text-[18px] md:text-[20px] leading-tight text-neutral-900">
             {project.title}
           </h1>
-          <div className="mt-2 text-[12px] text-neutral-500">{project.place}</div>
+          <div className="mt-2 text-[12px] text-neutral-500 tracking-wide uppercase">
+            {project.place}
+          </div>
           {project.year && (
             <div className="mt-2 text-[12px] text-neutral-500">{project.year}</div>
           )}
@@ -153,7 +155,7 @@ function HScrollRow({
       const max = el.scrollWidth - el.clientWidth;
       if (el.scrollLeft <= 0 || el.scrollLeft >= max) {
         stop();
-      el.classList.remove("cursor-grabbing");
+        el.classList.remove("cursor-grabbing");
         return;
       }
       raf = requestAnimationFrame(momentum);
