@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { NavLink } from "react-router-dom";
 import Logo from "../../assets/logo.svg";
 import LeftNav from "../../assets/Icons/MenuAmb/left-nav.svg";
 
@@ -10,6 +11,16 @@ const CATS = [
   "PRODUCTOS",
 ];
 
+// Rutas del menú lateral (izquierdo)
+const MENU = [
+  { label: "PROYECTOS", to: "/" },
+  { label: "NOSOTROS", to: "/nosotros" },
+  { label: "SERVICIOS", to: "/servicios" },
+  { label: "BLOG", to: "/blog" },
+  { label: "CAREERS", to: "/careers" },   // <= aquí es donde se pondrá negro al estar activo
+  { label: "CONTACTO", to: "/contacto" },
+];
+
 export default function Header() {
   const [openMenu, setOpenMenu] = useState(false);
   const active = "ARQUITECTURA";
@@ -17,11 +28,12 @@ export default function Header() {
   return (
     <header className="bg-neutral-50/80 backdrop-blur supports-[backdrop-filter]:bg-neutral-50/70 ">
       <div className="container mx-auto max-w-[1440px] px-4">
-        <div className="py-6">
+        {/* altura fija para que no cambie al abrir/cerrar */}
+        <div className="py-6 min-h-[130px]">
           {/* 140 | centro | 240 */}
           <div className="grid grid-cols-[140px_1fr_240px] items-start">
             {/* IZQUIERDA: hamburguesa y (si está abierto) la lista debajo */}
-            <div className="flex flex-col items-start">
+            <div className="flex flex-col items-start relative">
               <button
                 data-cursor="link"
                 aria-label={openMenu ? "Cerrar menú" : "Abrir menú"}
@@ -37,29 +49,36 @@ export default function Header() {
                 />
               </button>
 
-              {/* Lista vertical SOLO cuando está abierto */}
-              {openMenu && (
-                <ul className="mt-3 flex flex-col gap-[2px] uppercase">
-                  <li className="text-[17px] font-medium text-neutral-900">
-                    PROYECTOS
+              {/* Lista vertical: absoluta para no empujar el layout (sin recuadro) */}
+              <ul
+                className={[
+                  "absolute left-0 top-[calc(100%+12px)]",
+                  "flex flex-col gap-[2px] uppercase",
+                  "transition-opacity duration-150",
+                  openMenu
+                    ? "opacity-100 pointer-events-auto"
+                    : "opacity-0 pointer-events-none",
+                ].join(" ")}
+              >
+                {MENU.map((item) => (
+                  <li key={item.to}>
+                    <NavLink
+                      to={item.to}
+                      onClick={() => setOpenMenu(false)}
+                      className={({ isActive }) =>
+                        [
+                          "text-[17px] font-medium",
+                          isActive
+                            ? "text-neutral-900" // ACTIVO -> negro
+                            : "text-neutral-400 hover:text-neutral-700",
+                        ].join(" ")
+                      }
+                    >
+                      {item.label}
+                    </NavLink>
                   </li>
-                  <li className="text-[17px] font-medium text-neutral-400 hover:text-neutral-700">
-                    NOSOTROS
-                  </li>
-                  <li className="text-[17px] font-medium text-neutral-400 hover:text-neutral-700">
-                    SERVICIOS
-                  </li>
-                  <li className="text-[17px] font-medium text-neutral-400 hover:text-neutral-700">
-                    BLOG
-                  </li>
-                  <li className="text-[17px] font-medium text-neutral-400 hover:text-neutral-700">
-                    CAREERS
-                  </li>
-                  <li className="text-[17px] font-medium text-neutral-400 hover:text-neutral-700">
-                    CONTACTO
-                  </li>
-                </ul>
-              )}
+                ))}
+              </ul>
             </div>
 
             {/* CENTRO: logo + categorías (siempre visibles) */}
