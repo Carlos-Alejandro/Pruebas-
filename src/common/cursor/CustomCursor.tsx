@@ -17,15 +17,17 @@ export default function CustomCursor() {
   const labelRef = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
   const [mode, setMode] = useState<CursorMode>("default");
+  const [isDragging, setIsDragging] = useState(false);
 
   const pos = useRef({ x: 0, y: 0 });
   const target = useRef({ x: 0, y: 0 });
   const raf = useRef<number | null>(null);
+  const currentElement = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
     if (isCoarsePointer()) return;
 
-    // seguimiento inmediato para eliminar “desfase”
+    // seguimiento inmediato para eliminar "desfase"
     const onMove = (e: MouseEvent) => {
       const x = e.clientX;
       const y = e.clientY;
@@ -33,9 +35,14 @@ export default function CustomCursor() {
       setVisible(true);
 
       const el = (e.target as HTMLElement | null)?.closest<HTMLElement>("[data-cursor]");
-      const m = (el?.dataset.cursor as CursorMode) || "default";
-      setMode(m);
-      if (labelRef.current) labelRef.current.textContent = el?.dataset.cursorLabel ?? "";
+      currentElement.current = el || null;
+      
+      // Si estamos arrastrando, mantener el modo drag
+      if (!isDragging) {
+        const m = (el?.dataset.cursor as CursorMode) || "default";
+        setMode(m);
+        if (labelRef.current) labelRef.current.textContent = el?.dataset.cursorLabel ?? "";
+      }
 
       if (!USE_SMOOTHING) {
         pos.current = { x, y };
@@ -44,9 +51,28 @@ export default function CustomCursor() {
       }
     };
 
+    const onDown = (e: MouseEvent) => {
+      const el = currentElement.current;
+      if (el?.dataset.cursor === "drag") {
+        setIsDragging(true);
+      }
+    };
+
+    const onUp = () => {
+      setIsDragging(false);
+      // Restaurar el modo según el elemento actual
+      if (currentElement.current) {
+        const m = (currentElement.current.dataset.cursor as CursorMode) || "default";
+        setMode(m);
+        if (labelRef.current) labelRef.current.textContent = currentElement.current.dataset.cursorLabel ?? "";
+      }
+    };
+
     const onLeave = () => setVisible(false);
 
     window.addEventListener("mousemove", onMove, { passive: true });
+    window.addEventListener("mousedown", onDown, { passive: true });
+    window.addEventListener("mouseup", onUp, { passive: true });
     window.addEventListener("mouseout", onLeave, { passive: true });
 
     if (USE_SMOOTHING) {
@@ -63,10 +89,12 @@ export default function CustomCursor() {
 
     return () => {
       window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mousedown", onDown);
+      window.removeEventListener("mouseup", onUp);
       window.removeEventListener("mouseout", onLeave);
       if (raf.current) cancelAnimationFrame(raf.current);
     };
-  }, []);
+  }, [isDragging]);
 
   if (isCoarsePointer()) return null;
 
