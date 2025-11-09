@@ -9,6 +9,9 @@ import Bim from "../Landing/page/Bim";
 import Contacto from "../Landing/page/Contacto";
 import ServiceDetail from "../Landing/page/ServiceDetail";
 import ServicesSection from "../Landing/page/ServicesSection";
+import BlogSection from "../Landing/page/BlogSection";
+import BlogDetailSection from "../Landing/page/BlogDetailSection";
+import ProductsSection from "../Landing/page/ProductsSection";
 
 export default function AppRoutes() {
   return (
@@ -23,6 +26,10 @@ export default function AppRoutes() {
         <Route path="/contacto" element={<Contacto />} />
         <Route path="/servicios" element={<ServicesSection />} />
         <Route path="/servicios/:slug" element={<ServiceDetail />} />
+        <Route path="/blog" element={<BlogSection />} />
+        <Route path="/blog/:slug" element={<BlogDetailSection />} />
+        <Route path="/productos" element={<ProductsSection />} />
+        
       </Route>
 
       {/* Fallback */}
