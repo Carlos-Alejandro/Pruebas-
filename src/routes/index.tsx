@@ -23,7 +23,6 @@ export default function AppRoutes() {
         <Route path="/contacto" element={<Contacto />} />
         <Route path="/servicios" element={<ServicesSection />} />
         <Route path="/servicios/:slug" element={<ServiceDetail />} />
-
       </Route>
 
       {/* Fallback */}

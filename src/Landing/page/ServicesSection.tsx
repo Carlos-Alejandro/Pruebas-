@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function ServicesSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const movedRef = useRef(0);
   const navigate = useNavigate();
 
   // ✅ Altura dinámica (viewport - header - footer)
@@ -13,13 +14,12 @@ export default function ServicesSection() {
       const vh = window.innerHeight;
       const availableHeight = vh - 218; // Header (149) + Footer (69)
 
-      // 🔽 Reducción adaptativa para pantallas medianas y móviles
       const reducedHeight =
         window.innerWidth < 768
-          ? availableHeight * 0.75 // móviles
+          ? availableHeight * 0.75
           : window.innerWidth < 1280
-          ? availableHeight * 0.85 // medianas
-          : availableHeight; // grandes
+          ? availableHeight * 0.85
+          : availableHeight;
 
       sectionRef.current.style.minHeight = `${reducedHeight}px`;
     };
@@ -29,46 +29,127 @@ export default function ServicesSection() {
     return () => window.removeEventListener("resize", updateHeight);
   }, []);
 
-  // ✅ Scroll horizontal + drag con cursor funcional
-  const [dragging, setDragging] = useState(false);
-  const startX = useRef(0);
-  const startScroll = useRef(0);
-
+  // ✅ Drag con inercia (idéntico a Inicio)
   useEffect(() => {
     const el = scrollerRef.current;
     if (!el) return;
+
     const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
-        e.preventDefault();
-        el.scrollLeft += e.deltaY;
-      }
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) e.preventDefault();
     };
     el.addEventListener("wheel", onWheel, { passive: false });
-    return () => el.removeEventListener("wheel", onWheel);
+
+    let isDragging = false;
+    let startX = 0;
+    let startScrollLeft = 0;
+    let velocity = 0;
+    let lastX = 0;
+    let lastT = 0;
+    let rafId = 0;
+    let startY = 0;
+
+    const stopMomentum = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = 0;
+    };
+    const momentum = () => {
+      velocity *= 0.95;
+      if (Math.abs(velocity) < 0.2) {
+        stopMomentum();
+        el.classList.remove("cursor-grabbing");
+        return;
+      }
+      el.scrollLeft -= velocity;
+      rafId = requestAnimationFrame(momentum);
+    };
+
+    const getX = (clientX: number) => clientX - el.getBoundingClientRect().left;
+
+    const onDown = (clientX: number) => {
+      isDragging = true;
+      movedRef.current = 0;
+      startX = getX(clientX);
+      startScrollLeft = el.scrollLeft;
+      lastX = startX;
+      lastT = performance.now();
+      velocity = 0;
+      stopMomentum();
+      el.classList.add("cursor-grabbing");
+    };
+
+    const onMove = (clientX: number) => {
+      if (!isDragging) return;
+      const x = getX(clientX);
+      const now = performance.now();
+      const dx = x - lastX;
+      const dt = now - lastT || 16.7;
+      el.scrollLeft = startScrollLeft - (x - startX);
+      velocity = dx * (16.7 / dt);
+      lastX = x;
+      lastT = now;
+      movedRef.current += Math.abs(dx);
+    };
+
+    const onUp = () => {
+      if (!isDragging) return;
+      isDragging = false;
+      rafId = requestAnimationFrame(momentum);
+      el.classList.remove("cursor-grabbing");
+    };
+
+    // mouse
+    const md = (e: MouseEvent) => {
+      e.preventDefault();
+      onDown(e.clientX);
+    };
+    const mm = (e: MouseEvent) => {
+      e.preventDefault();
+      onMove(e.clientX);
+    };
+    const mu = () => onUp();
+
+    // touch
+    const ts = (e: TouchEvent) => {
+      if (!e.touches[0]) return;
+      startY = e.touches[0].clientY;
+      onDown(e.touches[0].clientX);
+    };
+    const tm = (e: TouchEvent) => {
+      if (!e.touches[0]) return;
+      const dy = Math.abs(e.touches[0].clientY - startY);
+      const dx = Math.abs(getX(e.touches[0].clientX) - startX);
+      if (dx > dy) {
+        e.preventDefault();
+        onMove(e.touches[0].clientX);
+      } else {
+        isDragging = false;
+        el.classList.remove("cursor-grabbing");
+      }
+    };
+    const te = () => onUp();
+
+    el.addEventListener("mousedown", md);
+    window.addEventListener("mousemove", mm, { passive: false });
+    window.addEventListener("mouseup", mu);
+    el.addEventListener("touchstart", ts, { passive: false });
+    el.addEventListener("touchmove", tm, { passive: false });
+    el.addEventListener("touchend", te);
+
+    return () => {
+      el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("mousedown", md);
+      window.removeEventListener("mousemove", mm as any);
+      window.removeEventListener("mouseup", mu);
+      el.removeEventListener("touchstart", ts);
+      el.removeEventListener("touchmove", tm);
+      el.removeEventListener("touchend", te);
+      stopMomentum();
+    };
   }, []);
 
-  const onPointerDown: React.PointerEventHandler<HTMLDivElement> = (e) => {
-    const el = scrollerRef.current;
-    if (!el) return;
-    setDragging(true);
-    startX.current = e.clientX;
-    startScroll.current = el.scrollLeft;
-    el.setPointerCapture(e.pointerId);
+  const handleCardClick = (slug: string) => {
+    if (movedRef.current < 10) navigate(`/servicios/${slug}`);
   };
-  const onPointerMove: React.PointerEventHandler<HTMLDivElement> = (e) => {
-    if (!dragging) return;
-    const el = scrollerRef.current;
-    if (!el) return;
-    const dx = e.clientX - startX.current;
-    el.scrollLeft = startScroll.current - dx;
-  };
-  const onPointerUp: React.PointerEventHandler<HTMLDivElement> = (e) => {
-    setDragging(false);
-    const el = scrollerRef.current;
-    el?.releasePointerCapture(e.pointerId);
-  };
-
-  // ✅ Servicios
   const services = [
     {
       id: 1,
@@ -99,15 +180,12 @@ export default function ServicesSection() {
     },
   ];
 
+  // ✅ Tu diseño original sin tocarlo
   return (
     <main
       ref={sectionRef}
       className="bg-neutral-50 text-neutral-900 flex justify-center items-center"
-      style={{
-        overflow: "visible",
-        position: "static",
-        zIndex: "auto",
-      }}
+      style={{ overflow: "visible", position: "static", zIndex: "auto" }}
     >
       {/* DESKTOP */}
       <div
@@ -118,7 +196,7 @@ export default function ServicesSection() {
           w-full h-full select-none
           [&::-webkit-scrollbar]:hidden
           pointer-events-auto
-          ${dragging ? "cursor-grabbing" : "cursor-grab"}
+          cursor-grab
         `}
         style={{
           scrollbarWidth: "none",
@@ -126,10 +204,6 @@ export default function ServicesSection() {
           zIndex: "auto",
           position: "relative",
         }}
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
       >
         <div
           className="flex justify-start items-start mx-auto"
@@ -138,25 +212,22 @@ export default function ServicesSection() {
             paddingLeft: "clamp(1.4rem, 7.3vw, 14rem)",
             paddingRight: "clamp(1.4rem, 7.3vw, 14rem)",
             minWidth: "fit-content",
-            maxWidth: "clamp(120rem, 90vw, 189.5rem)", // 1895px (se mantiene)
-            
+            maxWidth: "clamp(120rem, 90vw, 189.5rem)",
           }}
         >
           {services.map((s) => (
             <div
               key={s.id}
-              onClick={() => navigate(`/servicios/${s.slug}`)}
+              onClick={() => handleCardClick(s.slug)}
               className="flex flex-col cursor-pointer transition-transform duration-300 hover:scale-[1.01]"
               data-cursor="drag"
-              data-cursor-label="Arrastra"
-
+              data-cursor-label="Ver más"
               style={{
-                width: "clamp(45rem, 30vw, 57.5rem)", // se mantiene
-                height: "clamp(32rem, 45vh, 50rem)", // 🔽 altura más flexible
+                width: "clamp(45rem, 30vw, 57.5rem)",
+                height: "clamp(32rem, 45vh, 50rem)",
                 flexShrink: 0,
               }}
             >
-              {/* Número + título */}
               <h2
                 className="font-medium"
                 style={{
@@ -169,11 +240,10 @@ export default function ServicesSection() {
                 <span className="text-[#0A0A0A]">{s.title}</span>
               </h2>
 
-              {/* Descripción */}
               <p
                 className="font-medium text-[#0A0A0A]"
                 style={{
-                  fontSize: "clamp(1.4rem, 1.2vw, 2rem)", // 🔽 más compacto en medianas
+                  fontSize: "clamp(1.4rem, 1.2vw, 2rem)",
                   lineHeight: "clamp(1.8rem, 1.8vw, 2.5rem)",
                   marginTop: "clamp(1rem, 1.5vw, 2rem)",
                   marginBottom: "clamp(2rem, 2.5vw, 3rem)",
@@ -183,7 +253,6 @@ export default function ServicesSection() {
                 {s.description}
               </p>
 
-              {/* Imagen */}
               <div
                 className="overflow-hidden rounded-sm"
                 style={{
@@ -211,6 +280,8 @@ export default function ServicesSection() {
             key={s.id}
             onClick={() => navigate(`/servicios/${s.slug}`)}
             className="flex flex-col gap-4 cursor-pointer"
+            data-cursor="view"
+            data-cursor-label="Ver más"
           >
             <h2 className="font-medium text-2xl text-[#0A0A0A] leading-tight">
               <span className="text-[#A6A6A6]">{s.number}</span>{" "}
