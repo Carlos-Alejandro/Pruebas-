@@ -12,8 +12,18 @@ export default function ServicesSection() {
       if (!sectionRef.current) return;
       const vh = window.innerHeight;
       const availableHeight = vh - 218; // Header (149) + Footer (69)
-      sectionRef.current.style.minHeight = `${availableHeight}px`;
+
+      // 🔽 Reducción adaptativa para pantallas medianas y móviles
+      const reducedHeight =
+        window.innerWidth < 768
+          ? availableHeight * 0.75 // móviles
+          : window.innerWidth < 1280
+          ? availableHeight * 0.85 // medianas
+          : availableHeight; // grandes
+
+      sectionRef.current.style.minHeight = `${reducedHeight}px`;
     };
+
     updateHeight();
     window.addEventListener("resize", updateHeight);
     return () => window.removeEventListener("resize", updateHeight);
@@ -58,6 +68,7 @@ export default function ServicesSection() {
     el?.releasePointerCapture(e.pointerId);
   };
 
+  // ✅ Servicios
   const services = [
     {
       id: 1,
@@ -91,8 +102,12 @@ export default function ServicesSection() {
   return (
     <main
       ref={sectionRef}
-      className="bg-neutral-50 text-neutral-900 flex justify-center items-center relative"
-      style={{ overflow: "visible", zIndex: 0 }}
+      className="bg-neutral-50 text-neutral-900 flex justify-center items-center"
+      style={{
+        overflow: "visible",
+        position: "static",
+        zIndex: "auto",
+      }}
     >
       {/* DESKTOP */}
       <div
@@ -108,7 +123,7 @@ export default function ServicesSection() {
         style={{
           scrollbarWidth: "none",
           msOverflowStyle: "none",
-          zIndex: "auto", // 👈 evita que tape el header
+          zIndex: "auto",
           position: "relative",
         }}
         onPointerDown={onPointerDown}
@@ -123,8 +138,8 @@ export default function ServicesSection() {
             paddingLeft: "clamp(1.4rem, 7.3vw, 14rem)",
             paddingRight: "clamp(1.4rem, 7.3vw, 14rem)",
             minWidth: "fit-content",
-            maxWidth: "clamp(120rem, 90vw, 189.5rem)", // 1895px
-            height: "clamp(50rem, 55vh, 53.8rem)", // 538px
+            maxWidth: "clamp(120rem, 90vw, 189.5rem)", // 1895px (se mantiene)
+            
           }}
         >
           {services.map((s) => (
@@ -132,9 +147,12 @@ export default function ServicesSection() {
               key={s.id}
               onClick={() => navigate(`/servicios/${s.slug}`)}
               className="flex flex-col cursor-pointer transition-transform duration-300 hover:scale-[1.01]"
+              data-cursor="drag"
+              data-cursor-label="Arrastra"
+
               style={{
-                width: "clamp(45rem, 30vw, 57.5rem)", // 575px
-                height: "clamp(50rem, 55vh, 50rem)", // 500px
+                width: "clamp(45rem, 30vw, 57.5rem)", // se mantiene
+                height: "clamp(32rem, 45vh, 50rem)", // 🔽 altura más flexible
                 flexShrink: 0,
               }}
             >
@@ -142,8 +160,8 @@ export default function ServicesSection() {
               <h2
                 className="font-medium"
                 style={{
-                  fontSize: "clamp(3rem, 2.5vw, 4.8rem)", // 48px
-                  lineHeight: "clamp(4rem, 3vw, 6rem)",
+                  fontSize: "clamp(2.2rem, 2.2vw, 4.8rem)",
+                  lineHeight: "clamp(3rem, 2.5vw, 6rem)",
                   color: "#A6A6A6",
                 }}
               >
@@ -155,8 +173,8 @@ export default function ServicesSection() {
               <p
                 className="font-medium text-[#0A0A0A]"
                 style={{
-                  fontSize: "clamp(1.6rem, 1.5vw, 2rem)", // 20px
-                  lineHeight: "clamp(2rem, 2vw, 2.5rem)",
+                  fontSize: "clamp(1.4rem, 1.2vw, 2rem)", // 🔽 más compacto en medianas
+                  lineHeight: "clamp(1.8rem, 1.8vw, 2.5rem)",
                   marginTop: "clamp(1rem, 1.5vw, 2rem)",
                   marginBottom: "clamp(2rem, 2.5vw, 3rem)",
                   maxWidth: "clamp(40rem, 45vw, 57.5rem)",
@@ -169,8 +187,8 @@ export default function ServicesSection() {
               <div
                 className="overflow-hidden rounded-sm"
                 style={{
-                  width: "clamp(30rem, 23vw, 44.3rem)", // 443px
-                  height: "clamp(20rem, 18vw, 28rem)", // 280px
+                  width: "clamp(30rem, 23vw, 44.3rem)",
+                  height: "clamp(20rem, 18vw, 28rem)",
                 }}
               >
                 <img
@@ -187,7 +205,7 @@ export default function ServicesSection() {
       </div>
 
       {/* MOBILE */}
-      <div className="md:hidden w-full px-6 py-12 space-y-12">
+      <div className="md:hidden w-full px-6 py-8 sm:py-12 space-y-12">
         {services.map((s) => (
           <div
             key={s.id}

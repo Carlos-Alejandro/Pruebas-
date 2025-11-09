@@ -7,8 +7,8 @@ import Careers from "../Landing/page/Careers";
 import Nosotros from "../Landing/page/Nosotros";
 import Bim from "../Landing/page/Bim";
 import Contacto from "../Landing/page/Contacto";
-import Services from "../Landing/page/Services";
 import ServiceDetail from "../Landing/page/ServiceDetail";
+import ServicesSection from "../Landing/page/ServicesSection";
 
 export default function AppRoutes() {
   return (
@@ -21,7 +21,7 @@ export default function AppRoutes() {
         <Route path="/nosotros" element={<Nosotros />} />
         <Route path="/bim" element={<Bim />} />
         <Route path="/contacto" element={<Contacto />} />
-        <Route path="/servicios" element={<Services />} />
+        <Route path="/servicios" element={<ServicesSection />} />
         <Route path="/servicios/:slug" element={<ServiceDetail />} />
 
       </Route>
