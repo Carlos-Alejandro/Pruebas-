@@ -1,20 +1,39 @@
 // src/App.tsx
+import { useEffect, useState } from "react";
 import { Outlet } from "react-router-dom";
 import Header from "./common/header/Header";
 import CustomCursor from "./common/cursor/CustomCursor";
 import Footer from "./common/footer/Footer";
+import Splash from "./common/splash/Splash";
+import GlobalScrollScale from "./common/scroll/GlobalScrollScale";
 
 export default function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  // Oculta el logo real del header mientras el splash está activo
+  useEffect(() => {
+    const slot = document.getElementById("header-logo-slot");
+    if (!slot) return;
+    slot.style.opacity = showSplash ? "0" : "1";
+  }, [showSplash]);
+
   return (
-    <div className=" flex flex-col bg-neutral-50 text-neutral-900 font-cabinet">
+    <div className="min-h-screen flex flex-col bg-neutral-50 text-neutral-900 font-cabinet">
+      {showSplash && (
+        <Splash delayMs={0} onDone={() => setShowSplash(false)} />
+      )}
+
       <Header />
 
-      {/* Zona de páginas: ocupa el espacio libre */}
-        <Outlet />
-      {/* Footer al fondo */}
+      {/* Contenido de la página */}
+      <Outlet />
+
       <Footer />
 
-      {/* Cursor (fixed, no afecta el layout) */}
+      {/* Escala global suave para contenedores horizontales */}
+      <GlobalScrollScale activeScale={0.98} />
+
+      {/* Cursor personalizado */}
       <CustomCursor />
     </div>
   );

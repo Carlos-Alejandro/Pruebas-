@@ -46,26 +46,28 @@ export default function ProyectoDetalle() {
         <Link to="/" className="hover:text-neutral-700">← Volver</Link>
       </div>
 
-      {/* TODO SCROLL HORIZONTAL: izquierda (título) + imagen + texto */}
+      {/* SCROLL HORIZONTAL: izquierda (título) + imagen + texto */}
       <HScrollRow>
-        {/* -- Columna IZQUIERDA dentro del carril (scrollable) -- */}
+        {/* IZQUIERDA: título / lugar / año */}
         <aside className="shrink-0 w-[240px] md:w-[260px] pr-4 text-right">
-          <h1 className="font-medium text-[18px] md:text-[20px] leading-tight text-neutral-900">
-            {project.title}
-          </h1>
-          <div className="mt-2 text-[12px] text-neutral-500">
-            {project.place}
-          </div>
-          {project.year && (
-            <div className="mt-2 text-[12px] text-neutral-500">
-              {project.year}
+          <div className="inline-block align-top space-y-[2px]">
+            <h1 className="font-medium text-[18px] md:text-[20px] leading-[1.15] text-neutral-900">
+              {project.title}
+            </h1>
+            <div className="text-[12px] leading-[1.2] text-neutral-500">
+              {project.place}
             </div>
-          )}
+            {project.year && (
+              <div className="text-[12px] leading-[1.2] text-neutral-500">
+                {project.year}
+              </div>
+            )}
+          </div>
         </aside>
 
-        {/* -- IMAGEN (no se encoge) -- */}
-        <div
-          className="inline-block shrink-0"
+        {/* IMAGEN */}
+        <figure
+          className="inline-block shrink-0 align-top"
           data-cursor="drag"
           data-cursor-size="92"
           data-cursor-label="Arrastra"
@@ -80,35 +82,33 @@ export default function ProyectoDetalle() {
             fetchPriority="high"
             style={{ imageRendering: "auto" }}
           />
-        </div>
+        </figure>
 
-        {/* -- TEXTO (no se encoge, footer pegado abajo) -- */}
-        <article className="w-[560px] lg:w-[600px] shrink-0 flex flex-col text-[13px] leading-relaxed text-neutral-800 pr-4">
-          <p className="leading-[1.55]">{description}</p>
+        {/* TEXTO (desc arriba, “dos líneas” abajo con gran separación) */}
+        <article className="w-[560px] lg:w-[667px] shrink-0 flex flex-col pr-4 min-h-[62vh]">
+          {/* Descripción */}
+          <p className="font-medium text-neutral-900 text-[15px] md:text-[17px] leading-[1.3] tracking-normal antialiased">
+            {description}
+          </p>
 
-          {(project.brief || project.categories) && (
-            <div className="mt-auto pt-8">
-              {project.brief && (
-                <div className="text-[13px] text-neutral-800">
-                  {project.brief}
-                </div>
-              )}
-              {project.categories && (
-                <div className="mt-1 text-[11px] text-neutral-500">
-                  {project.categories}
-                </div>
-              )}
+          {/* Empuje hacia la parte inferior + separación grande */}
+          <div className="mt-auto pt-12 md:pt-16 lg:pt-24 select-none">
+            <div className="font-medium text-neutral-900 text-[15px] md:text-[17px] leading-[1.25]">
+              {project.brief ?? "Desarrollo de habitacional frente al mar"}
             </div>
-          )}
+            <div className="text-[#A6A6A6] text-[15px] md:text-[17px] leading-[1.25] uppercase tracking-[0.02em]">
+              {project.categories ?? "DISEÑO ARQUITECTÓNICO / DISEÑO DE INTERIOR"}
+            </div>
+          </div>
         </article>
       </HScrollRow>
     </main>
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Carril scrolleable horizontal (drag + inercia + wheel horizontal)  */
-/* ------------------------------------------------------------------ */
+/* -------------------------------------------------------------- */
+/* Carril scrolleable horizontal (drag + inercia + wheel horiz.)  */
+/* -------------------------------------------------------------- */
 import { useEffect, useRef, type PropsWithChildren } from "react";
 
 function HScrollRow({
@@ -131,10 +131,7 @@ function HScrollRow({
     let v = 0;
     let raf = 0;
 
-    const stop = () => {
-      if (raf) cancelAnimationFrame(raf);
-      raf = 0;
-    };
+    const stop = () => { if (raf) cancelAnimationFrame(raf); raf = 0; };
 
     const momentum = () => {
       v *= 0.95;
@@ -186,7 +183,6 @@ function HScrollRow({
       raf = requestAnimationFrame(momentum);
     };
 
-    // Si el gesto es mayormente horizontal, lo tomamos nosotros.
     const onWheel = (e: WheelEvent) => {
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
         e.preventDefault();
@@ -231,9 +227,8 @@ function HScrollRow({
         "no-scrollbar overflow-x-auto overflow-y-hidden cursor-grab select-none " +
         className
       }
-      style={{ touchAction: "pan-y" }} // vertical sigue scrolleando la página
+      style={{ touchAction: "pan-y" }}
     >
-      {/* w-max: el ancho es el del contenido; aparece scroll si se excede */}
       <div className="flex w-max gap-10 items-stretch pr-1">
         {children}
       </div>

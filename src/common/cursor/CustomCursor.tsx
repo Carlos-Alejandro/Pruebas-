@@ -10,10 +10,10 @@ const isCoarsePointer = () =>
   typeof window !== "undefined" &&
   (window.matchMedia?.("(pointer: coarse)")?.matches || "ontouchstart" in window);
 
-// 🔒 Zonas donde NO debe mostrarse el cursor custom
+// 🔒 Zonas donde suele ocultarse el cursor custom
+// OJO: dejamos a/role=button fuera si tienen data-cursor
 const HIDE_SELECTOR =
-  'input, textarea, select, button, a, [role="button"], [contenteditable="true"], ' +
-  '[data-cursor="ignore"], [data-cursor="off"]';
+  'input, textarea, select, button, [contenteditable="true"], [data-cursor="ignore"], [data-cursor="off"]';
 
 const lerp = (a: number, b: number, n: number) => (1 - n) * a + n * b;
 
@@ -44,9 +44,15 @@ export default function CustomCursor() {
       target.current = { x, y };
 
       const t = e.target as HTMLElement | null;
-      const hideZone = t?.closest(HIDE_SELECTOR);
+
+      // 1) Primero detecta si estamos en una región con data-cursor (override)
+      const cursorRegion = t?.closest<HTMLElement>("[data-cursor]") ?? null;
+      currentElement.current = cursorRegion ?? null;
+
+      // 2) Si NO hay data-cursor cerca, entonces aplica zonas ocultas
+      const hideZone = !cursorRegion && t?.closest(HIDE_SELECTOR);
+
       if (hideZone) {
-        // ⛔️ Ocultar COMPLETAMENTE el cursor custom en zonas ignoradas
         setVisible(false);
         currentElement.current = null;
         setIsDragging(false);
@@ -54,15 +60,14 @@ export default function CustomCursor() {
         return;
       }
 
+      // Mostrar cursor
       setVisible(true);
 
-      const el = t?.closest<HTMLElement>("[data-cursor]") ?? null;
-      currentElement.current = el;
-
+      // Modo/label
       if (!isDragging) {
-        const m = (el?.dataset.cursor as CursorMode) || "default";
+        const m = (cursorRegion?.dataset.cursor as CursorMode) || "default";
         setMode(m);
-        if (labelRef.current) labelRef.current.textContent = el?.dataset.cursorLabel ?? "";
+        if (labelRef.current) labelRef.current.textContent = cursorRegion?.dataset.cursorLabel ?? "";
       }
 
       if (!USE_SMOOTHING) {

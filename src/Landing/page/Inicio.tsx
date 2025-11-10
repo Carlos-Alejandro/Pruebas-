@@ -35,6 +35,33 @@ export default function Inicio() {
   const scrollerRef = useRef<HTMLDivElement>(null);
   const movedRef = useRef(0);
 
+  // 👉 Calcula dinámicamente las alturas de header y footer para que
+  // la sección SIEMPRE ocupe exactamente el alto visible disponible.
+  useEffect(() => {
+    const root = document.documentElement;
+    const header = document.querySelector("header") as HTMLElement | null;
+    const footer = document.querySelector("footer") as HTMLElement | null;
+
+    const applyVars = () => {
+      const hH = header?.getBoundingClientRect().height ?? 0;
+      const fH = footer?.getBoundingClientRect().height ?? 0;
+      root.style.setProperty("--header-h", `${Math.round(hH)}px`);
+      root.style.setProperty("--footer-h", `${Math.round(fH)}px`);
+    };
+
+    applyVars();
+
+    const ro = new ResizeObserver(applyVars);
+    header && ro.observe(header);
+    footer && ro.observe(footer);
+    window.addEventListener("resize", applyVars);
+
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("resize", applyVars);
+    };
+  }, []);
+
   const items = useMemo(() => {
     const raw = Object.entries(imgs).map(([path, mod]) => {
       const file = path.split("/").pop() || "";
@@ -54,27 +81,21 @@ export default function Inicio() {
     const el = scrollerRef.current;
     if (!el) return;
 
-    // --- Rueda del mouse: bloquear solo desplazamiento HORIZONTAL
     const onWheel = (e: WheelEvent) => {
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-        // horizontal → bloqueado (drag-only)
-        e.preventDefault();
-      } // vertical → dejar pasar para que la página se mueva
+      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) e.preventDefault();
     };
     el.addEventListener("wheel", onWheel, { passive: false });
 
-    // --- Drag + inercia
+    // Drag + inercia
     let isDragging = false;
     let startX = 0;
     let startScrollLeft = 0;
 
-    // inercia
     let velocity = 0;
     let lastX = 0;
     let lastT = 0;
     let rafId = 0;
 
-    // touch: para permitir pan-vertical y detectar pan-horizontal
     let startY = 0;
 
     const originalSnap = getComputedStyle(el).scrollSnapType || "x proximity";
@@ -116,7 +137,6 @@ export default function Inicio() {
       const dt = now - lastT || 16.7;
 
       el.scrollLeft = startScrollLeft - (x - startX);
-
       velocity = dx * (16.7 / dt);
       lastX = x; lastT = now;
       movedRef.current += Math.abs(dx);
@@ -133,7 +153,7 @@ export default function Inicio() {
     const mm = (e: MouseEvent) => { e.preventDefault(); onMove(e.clientX); };
     const mu = () => onUp();
 
-    // Touch: solo bloqueamos si el gesto es mayormente horizontal
+    // Touch
     const ts = (e: TouchEvent) => {
       if (!e.touches[0]) return;
       startY = e.touches[0].clientY;
@@ -144,11 +164,9 @@ export default function Inicio() {
       const dy = Math.abs(e.touches[0].clientY - startY);
       const dx = Math.abs(getX(e.touches[0].clientX) - startX);
       if (dx > dy) {
-        // gesto horizontal → manejamos drag y bloqueamos default
         e.preventDefault();
         onMove(e.touches[0].clientX);
       } else {
-        // gesto vertical → liberar: cancela drag para no interferir
         isDragging = false;
         setSnap(originalSnap);
         el.classList.remove("cursor-grabbing");
@@ -177,20 +195,36 @@ export default function Inicio() {
   }, []);
 
   const handleCardClick = (slug: string) => {
-    // si casi no se movió (click real), navega
     if (movedRef.current < 10) navigate(`/proyectos/${slug}`);
   };
 
   return (
-    <main className="container mx-auto max-w-[1440px] px-2 md:px-3 pt-8 md:pt-40">
+    /**
+     * Ocupa exactamente el alto visible disponible:
+     *   min-h = 100svh - header - footer  (dinámicos)
+     *   max-h = lo mismo, para que NUNCA crezca más alto que la pantalla
+     *   flex-1/min-h-0 para cooperar con el <main class="flex-1"> del layout
+     */
+    <section
+      className="
+        mx-auto w-full max-w-[1440px] px-2 md:px-3 pt-8 md:pt-40
+        flex-1 min-h-0 flex flex-col
+      "
+      style={{
+        minHeight: "calc(100svh - var(--header-h,0px) - var(--footer-h,0px))",
+        maxHeight: "calc(100svh - var(--header-h,0px) - var(--footer-h,0px))",
+      }}
+    >
       <div
         ref={scrollerRef}
         className="
           no-scrollbar overflow-x-auto overflow-y-hidden
           snap-x snap-proximity
           cursor-grab select-none
-          touch-pan-y           /* permite pan vertical nativo */
+          touch-pan-y
           overscroll-x-contain
+          flex-1
+          min-h-0
         "
       >
         <div className="flex gap-6 pr-0">
@@ -207,7 +241,7 @@ export default function Inicio() {
               onClick={() => handleCardClick(it.slug)}
               role="button"
               tabIndex={0}
-              onKeyDown={(e) => { if (e.key === "Enter") handleCardClick(it.slug); }}
+              onKeyDown={(e) => { if (e.key === 'Enter') handleCardClick(it.slug); }}
             >
               <div className="aspect-[4/3] overflow-hidden">
                 <img
@@ -219,10 +253,10 @@ export default function Inicio() {
               </div>
 
               <div className="pt-3">
-                <h3 className="font-medium text-neutral-900 text-[21px] leading-[1.25]">
+                <h3 className="font-medium text-neutral-900 text-[17px] leading-[1.25]">
                   {it.title}
                 </h3>
-                <p className="font-medium text-neutral-500 text-[17px] tracking-wide">
+                <p className="font-medium text-neutral-500 text-[11px] tracking-wide">
                   {it.place}
                 </p>
               </div>
@@ -230,6 +264,6 @@ export default function Inicio() {
           ))}
         </div>
       </div>
-    </main>
+    </section>
   );
 }
