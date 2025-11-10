@@ -13,6 +13,20 @@
                "Noto Color Emoji";
 }
 
+/* Apaga el cursor custom en zonas ignoradas */
+[data-cursor="ignore"],
+[data-cursor="off"],
+[data-cursor="ignore"] * ,
+[data-cursor="off"] * {
+  cursor: auto !important;
+}
+
+/* Inputs siempre con cursor de texto */
+input, textarea, select {
+  cursor: text;
+}
+
+
 /* 4) Ajustes globales ligeros */
 :root { color-scheme: light; }
 html, body, #root { height: 100%; }
