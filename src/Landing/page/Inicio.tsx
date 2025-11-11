@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 
-/** Carga de imágenes: tomamos SIEMPRE la versión Grande si existe */
+/** Carga de imágenes: usamos SIEMPRE la versión Grande si existe */
 const imgs = import.meta.glob("../../assets/FotosInicio/*.{png,jpg,jpeg}", {
   eager: true,
   query: "?url",
@@ -39,7 +39,6 @@ const toGrandeIfExists = (filename: string) => {
   const hit = Object.entries(imgs).find(([p]) => p.endsWith("/" + filename));
   return hit?.[1]?.default ?? "";
 };
-/** sharedKey estable sin "Grande" */
 const sharedKeyOf = (anyFilename: string) =>
   fn(anyFilename).toLowerCase().replace(/(?:[_\-\s]?grande)(?=\.[^.]+$)/i, "");
 
@@ -50,7 +49,13 @@ const slugify = (s: string) =>
 export default function Inicio() {
   const navigate = useNavigate();
   const scrollerRef = useRef<HTMLDivElement | null>(null);
+  const innerRef = useRef<HTMLDivElement | null>(null);
+
+  // estado de gesto
+  const draggingRef = useRef(false);
   const movedRef = useRef(0);
+  const startXRef = useRef(0);
+  const startTimeRef = useRef(0);
 
   // alturas dinámicas
   useEffect(() => {
@@ -87,7 +92,7 @@ export default function Inicio() {
     return raw.sort((a, b) => (pos(a.file) - pos(b.file)) || a.file.localeCompare(b.file));
   }, []);
 
-  // --- util local para placeholder
+  // --- util para placeholder (transición “back”)
   function makePlaceholder(r: Rect) {
     const ph = document.createElement("div");
     ph.setAttribute("data-shared-placeholder", "1");
@@ -106,10 +111,7 @@ export default function Inicio() {
     return ph;
   }
 
-  /**
-   * Al montar Inicio, si venimos de "back", ocultamos la miniatura
-   * y creamos el placeholder ANTES del primer paint (sin parpadeo).
-   */
+  // Boot “back” transición compartida
   useLayoutEffect(() => {
     const pending = (window as any).__sharedImagePending as
       | { src: string; from: Rect; objectFit?: string; direction?: "back"; sharedKey?: string }
@@ -124,7 +126,6 @@ export default function Inicio() {
       ) as HTMLImageElement | null;
       if (!match) return false;
 
-      // Ocultar miniatura ANTES de pintar
       match.style.visibility = "hidden";
 
       const r = match.getBoundingClientRect();
@@ -135,10 +136,8 @@ export default function Inicio() {
         height: r.height,
       };
 
-      // Crear hueco blanco ya mismo
       const ph = makePlaceholder(to);
 
-      // Al terminar, quitamos placeholder y revelamos miniatura
       const onDone = () => {
         window.removeEventListener("shared-image-done", onDone as any);
         try { ph.remove(); } catch {}
@@ -147,7 +146,6 @@ export default function Inicio() {
       };
       window.addEventListener("shared-image-done", onDone as any, { once: true });
 
-      // Crear clon y animar hacia el placeholder
       window.dispatchEvent(new CustomEvent("shared-image-start", { detail: pending }));
       requestAnimationFrame(() => {
         window.dispatchEvent(new CustomEvent("shared-image-animate", { detail: { to } }));
@@ -156,97 +154,169 @@ export default function Inicio() {
       return true;
     };
 
-    // Si aún no está la miniatura en el DOM, reintenta unos frames
     if (tryBoot()) return;
     let attempts = 0;
-    const id = window.setInterval(() => {
-      attempts++;
-      if (tryBoot() || attempts > 10) window.clearInterval(id);
-    }, 16);
+    const id = window.setInterval(() => { attempts++; if (tryBoot() || attempts > 10) window.clearInterval(id); }, 16);
     return () => window.clearInterval(id);
   }, []);
 
-  // drag + inercia (igual)
+  // ===== Scroll: rueda + drag con snap dinámico + TAP SINTÉTICO =====
   useEffect(() => {
-    const el = scrollerRef.current; if (!el) return;
-    const onWheel = (e: WheelEvent) => { if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) e.preventDefault(); };
+    const el = scrollerRef.current;
+    if (!el) return;
+
+    const originalSnap = getComputedStyle(el).scrollSnapType || "x proximity";
+    let snapIdle: number | null = null;
+    const setSnap = (v: string) => ((el.style as any).scrollSnapType = v);
+    const armIdle = (ms = 220) => { if (snapIdle) window.clearTimeout(snapIdle); snapIdle = window.setTimeout(() => setSnap(originalSnap), ms); };
+
+    // Rueda fluida
+    let raf = 0;
+    let target = 0;
+    const stopRAF = () => { if (raf) cancelAnimationFrame(raf); raf = 0; };
+    const step = () => {
+      const cur = el.scrollLeft;
+      const next = cur + (target - cur) * 0.18;
+      el.scrollLeft = Math.abs(next - cur) < 0.5 ? target : next;
+      if (Math.abs(target - el.scrollLeft) > 0.5) raf = requestAnimationFrame(step);
+      else { stopRAF(); armIdle(180); }
+    };
+
+    const onWheel = (e: WheelEvent) => {
+      const d = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+      if (d === 0) return;
+      const before = el.scrollLeft;
+
+      setSnap("none");
+      if (!raf) target = el.scrollLeft;
+      target += d;
+      const max = el.scrollWidth - el.clientWidth;
+      if (target < 0) target = 0;
+      if (target > max) target = max;
+      if (!raf) raf = requestAnimationFrame(step);
+
+      if (el.scrollLeft !== before) e.preventDefault();
+    };
     el.addEventListener("wheel", onWheel, { passive: false });
 
-    let isDragging = false, startX = 0, startScrollLeft = 0, velocity = 0, lastX = 0, lastT = 0, rafId = 0, startY = 0;
-    const originalSnap = getComputedStyle(el).scrollSnapType || "x proximity";
-    const setSnap = (v: string) => ((el.style as any).scrollSnapType = v);
-    const getX = (cx: number) => cx - el.getBoundingClientRect().left;
-    const stopMomentum = () => { if (rafId) cancelAnimationFrame(rafId); rafId = 0; };
+    // Drag + inercia + TAP sintético
+    let startX = 0, lastX = 0, lastT = 0, v = 0, rafMom = 0;
+    const stopMomentum = () => { if (rafMom) cancelAnimationFrame(rafMom); rafMom = 0; };
     const momentum = () => {
-      velocity *= 0.95;
-      if (Math.abs(velocity) < 0.2) { stopMomentum(); setSnap(originalSnap); el.classList.remove("cursor-grabbing"); return; }
-      el.scrollLeft -= velocity;
-      if (el.scrollLeft <= 0 || el.scrollLeft >= el.scrollWidth - el.clientWidth) { stopMomentum(); setSnap(originalSnap); el.classList.remove("cursor-grabbing"); return; }
-      rafId = requestAnimationFrame(momentum);
+      v *= 0.95;
+      if (Math.abs(v) < 0.25) { stopMomentum(); armIdle(120); return; }
+      el.scrollLeft -= v;
+      if (el.scrollLeft <= 0 || el.scrollLeft >= el.scrollWidth - el.clientWidth) { stopMomentum(); armIdle(120); return; }
+      rafMom = requestAnimationFrame(momentum);
     };
-    const onDown = (cx: number) => {
-      isDragging = true; movedRef.current = 0;
-      startX = getX(cx); startScrollLeft = el.scrollLeft; lastX = startX; lastT = performance.now();
-      velocity = 0; stopMomentum(); setSnap("none"); el.classList.add("cursor-grabbing"); (document.activeElement as HTMLElement)?.blur?.();
-    };
-    const onMove = (cx: number) => {
-      if (!isDragging) return; const x = getX(cx); const now = performance.now();
-      const dx = x - lastX; const dt = now - lastT || 16.7;
-      el.scrollLeft = startScrollLeft - (x - startX); velocity = dx * (16.7 / dt);
-      lastX = x; lastT = now; movedRef.current += Math.abs(dx);
-    };
-    const onUp = () => { if (!isDragging) return; isDragging = false; rafId = requestAnimationFrame(momentum); };
 
-    const md = (e: MouseEvent) => { e.preventDefault(); onDown(e.clientX); };
-    const mm = (e: MouseEvent) => { e.preventDefault(); onMove(e.clientX); };
-    const mu = () => onUp();
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.pointerType === "mouse" && e.button !== 0) return;
+      draggingRef.current = true;
+      movedRef.current = 0;
+      startXRef.current = e.clientX;
+      startTimeRef.current = performance.now();
 
-    const ts = (e: TouchEvent) => { if (!e.touches[0]) return; startY = e.touches[0].clientY; onDown(e.touches[0].clientX); };
-    const tm = (e: TouchEvent) => {
-      if (!e.touches[0]) return;
-      const dy = Math.abs(e.touches[0].clientY - startY);
-      const dx = Math.abs(getX(e.touches[0].clientX) - startX);
-      if (dx > dy) { e.preventDefault(); onMove(e.touches[0].clientX); }
-      else { isDragging = false; setSnap(originalSnap); el.classList.remove("cursor-grabbing"); }
+      setSnap("none");
+      stopMomentum(); stopRAF();
+      el.setPointerCapture(e.pointerId);
+
+      startX = e.clientX;
+      lastX = startX;
+      lastT = performance.now();
+      v = 0;
+      (document.activeElement as HTMLElement)?.blur?.();
     };
-    const te = () => onUp();
 
-    el.addEventListener("mousedown", md);
-    window.addEventListener("mousemove", mm, { passive: false });
-    window.addEventListener("mouseup", mu);
-    el.addEventListener("touchstart", ts, { passive: false });
-    el.addEventListener("touchmove", tm, { passive: false });
-    el.addEventListener("touchend", te);
+    const onPointerMove = (e: PointerEvent) => {
+      if (!draggingRef.current) return;
+      const now = performance.now();
+      const dx = e.clientX - lastX;
+      const dt = now - lastT || 16.7;
+
+      // Mueve el scroll acorde al arrastre
+      el.scrollLeft -= dx;
+
+      v = dx * (16.7 / dt);
+      lastX = e.clientX; lastT = now;
+
+      movedRef.current += Math.abs(dx);
+    };
+
+    const onPointerUp = (e: PointerEvent) => {
+      if (!draggingRef.current) return;
+      draggingRef.current = false;
+      try { el.releasePointerCapture(e.pointerId); } catch {}
+
+      const totalMoved = Math.abs(e.clientX - startXRef.current);
+      const elapsed = performance.now() - startTimeRef.current;
+
+      // Si NO se arrastró (tap) => navegar al detalle del item bajo el dedo
+      if (totalMoved <= 10 && elapsed <= 250) {
+        // encuentra el elemento bajo el puntero
+        const hit = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement | null;
+        const card = hit?.closest?.("article[role='button']") as HTMLElement | null;
+        if (card) {
+          const imgEl = card.querySelector("img") as HTMLImageElement | null;
+          // disparo evento de detalle (mismo que en onClick)
+          if (imgEl) {
+            const r = imgEl.getBoundingClientRect();
+            const from = { top: r.top + window.scrollY, left: r.left + window.scrollX, width: r.width, height: r.height };
+            const objectFit = getComputedStyle(imgEl).objectFit || "cover";
+            window.dispatchEvent(new CustomEvent("shared-image-start", {
+              detail: { src: imgEl.src, from, objectFit, direction: "forward" }
+            }));
+          }
+          // navega usando el slug en data-attr
+          const slug = card.getAttribute("data-slug");
+          if (slug) navigate(`/proyectos/${slug}`);
+          return; // no lances inercia si fue tap
+        }
+      }
+
+      // si sí hubo arrastre: aplica inercia
+      rafMom = requestAnimationFrame(momentum);
+    };
+
+    el.addEventListener("pointerdown", onPointerDown);
+    el.addEventListener("pointermove", onPointerMove);
+    el.addEventListener("pointerup", onPointerUp);
+    el.addEventListener("pointercancel", onPointerUp);
+    el.addEventListener("lostpointercapture", onPointerUp);
 
     return () => {
       el.removeEventListener("wheel", onWheel);
-      el.removeEventListener("mousedown", md);
-      window.removeEventListener("mousemove", mm as any);
-      window.removeEventListener("mouseup", mu);
-      el.removeEventListener("touchstart", ts);
-      el.removeEventListener("touchmove", tm);
-      el.removeEventListener("touchend", te);
-      stopMomentum(); setSnap(originalSnap);
+      el.removeEventListener("pointerdown", onPointerDown);
+      el.removeEventListener("pointermove", onPointerMove);
+      el.removeEventListener("pointerup", onPointerUp);
+      el.removeEventListener("pointercancel", onPointerUp);
+      el.removeEventListener("lostpointercapture", onPointerUp);
+      stopMomentum(); stopRAF(); setSnap(originalSnap);
     };
-  }, []);
+  }, [navigate]);
 
-  // click: forward
-  const handleCardClick = useCallback((slug: string, ev?: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>) => {
-    if (movedRef.current >= 10) return;
-    ev?.preventDefault?.();
-    const articleEl = ev?.currentTarget as HTMLElement | null;
-    const imgEl = articleEl?.querySelector("img") as HTMLImageElement | null;
+  // Navegación a detalle (también la usa el fallback por teclado)
+  const goDetail = useCallback((slug: string, imgEl?: HTMLImageElement | null) => {
     if (!imgEl) { navigate(`/proyectos/${slug}`); return; }
-
     const r = imgEl.getBoundingClientRect();
     const from = { top: r.top + window.scrollY, left: r.left + window.scrollX, width: r.width, height: r.height };
     const objectFit = getComputedStyle(imgEl).objectFit || "cover";
-
     window.dispatchEvent(new CustomEvent("shared-image-start", {
       detail: { src: imgEl.src, from, objectFit, direction: "forward" }
     }));
     navigate(`/proyectos/${slug}`);
   }, [navigate]);
+
+  const handleCardClick = useCallback(
+    (slug: string, ev?: React.MouseEvent<HTMLElement> | React.KeyboardEvent<HTMLElement>) => {
+      // si hubo arrastre, ignora
+      if (draggingRef.current || movedRef.current > 18) return;
+      const articleEl = ev?.currentTarget as HTMLElement | null;
+      const imgEl = articleEl?.querySelector("img") as HTMLImageElement | null;
+      goDetail(slug, imgEl);
+    },
+    [goDetail]
+  );
 
   return (
     <section
@@ -258,27 +328,40 @@ export default function Inicio() {
     >
       <div
         ref={scrollerRef}
-        className="no-scrollbar overflow-x-auto overflow-y-hidden snap-x snap-proximity cursor-grab select-none touch-pan-y overscroll-x-contain flex-1 min-h-0"
+        className="no-scrollbar overflow-x-auto overflow-y-hidden snap-x snap-proximity cursor-grab select-none overscroll-x-contain flex-1 min-h-0"
+        style={{ touchAction: "pan-y" }}
+        data-cursor="drag"
+        data-cursor-label="Arrastra"
       >
-        <div className="flex gap-6 pr-0">
+        {/* w-max conserva layout; 4 col en xl con width fija ~320px */}
+        <div ref={innerRef} className="flex w-max gap-6 pr-0">
           {items.map((it) => (
             <article
               key={it.file}
-              className="snap-start shrink-0 basis-[90%] sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 max-w-[560px]"
-              data-cursor="drag"
-              data-cursor-label="Arrastra"
+              data-slug={it.slug}
+              className="
+                snap-start shrink-0
+                w-[85vw] sm:w-[48vw] lg:w-[340px] xl:w-[320px] max-w-[360px]
+              "
               role="button"
               tabIndex={0}
               onClick={(e) => handleCardClick(it.slug, e)}
-              onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") handleCardClick(it.slug, e); }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") handleCardClick(it.slug, e);
+              }}
             >
-              <div className="aspect-[4/3] overflow-hidden">
+              <div
+                className="aspect-[4/3] overflow-hidden"
+                data-cursor="drag"
+                data-cursor-label="Arrastra"
+              >
                 <img
                   src={it.src}
                   alt={it.title}
                   className="h-full w-full object-cover"
                   draggable={false}
-                  data-shared-key={it.key}   // clave para match en “back”
+                  onDragStart={(e) => e.preventDefault()}
+                  data-shared-key={it.key}
                 />
               </div>
 
