@@ -1,14 +1,20 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function ProductsSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const scrollerRef = useRef<HTMLDivElement>(null);
+    // ---------- Scroller horizontal con DRAG para navegar entre paneles ----------
+    const scrollerRef = useRef<HTMLDivElement>(null);
+    const [draggingScroll, setDraggingScroll] = useState(false);
+    const dragStartX = useRef(0);
+    const dragStartScroll = useRef(0);
 
   const images = {
     main: "/src/assets/productos/img10.png",
     rational: "/src/assets/productos/img11.png",
     bravat: "/src/assets/productos/img12.png",
   };
+
+  
 
   // ✅ Altura igual a BIM con escalado adaptativo
   useEffect(() => {
@@ -49,16 +55,51 @@ export default function ProductsSection() {
     return () => el.removeEventListener("wheel", onWheel);
   }, []);
 
+    // Drag horizontal sobre el scroller
+  const onScrollPointerDown: React.PointerEventHandler<HTMLDivElement> = (e) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setDraggingScroll(true);
+    dragStartX.current = e.clientX;
+    dragStartScroll.current = el.scrollLeft;
+    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+    e.preventDefault();
+  };
+
+  const onScrollPointerMove: React.PointerEventHandler<HTMLDivElement> = (e) => {
+    if (!draggingScroll) return;
+    const el = scrollerRef.current;
+    if (!el) return;
+    e.preventDefault();
+    const dx = e.clientX - dragStartX.current;
+    el.scrollLeft = dragStartScroll.current - dx;
+  };
+    const onScrollPointerUp: React.PointerEventHandler<HTMLDivElement> = (e) => {
+    setDraggingScroll(false);
+    (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
+  };
+
   return (
     <section
       ref={sectionRef}
       className="text-[#0A0A0A] flex justify-center items-center relative overflow-hidden"
     >
-      {/* SCROLLER */}
+      {/* DESKTOP: Scroller horizontal continuo (sin snap) */}
       <div
         ref={scrollerRef}
-        className="flex overflow-x-auto overflow-y-hidden w-full h-full cursor-grab select-none [&::-webkit-scrollbar]:hidden"
+        className={`
+          hidden md:block
+          w-full overflow-x-auto overflow-y-hidden
+          select-none
+          overscroll-x-contain
+          [&::-webkit-scrollbar]:hidden
+          ${draggingScroll ? "cursor-grabbing" : "cursor-grab"}
+        `}
         style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        onPointerDown={onScrollPointerDown}
+        onPointerMove={onScrollPointerMove}
+        onPointerUp={onScrollPointerUp}
+        onPointerCancel={onScrollPointerUp}
       >
         {/* CONTENEDOR INTERNO */}
         <div
