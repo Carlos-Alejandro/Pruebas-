@@ -1,10 +1,14 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function BlogDetailSection() {
   const sectionRef = useRef<HTMLElement>(null);
-  const scrollerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+    // ---------- Scroller horizontal con DRAG para navegar entre paneles ----------
+      const scrollerRef = useRef<HTMLDivElement>(null);
+      const [draggingScroll, setDraggingScroll] = useState(false);
+      const dragStartX = useRef(0);
+      const dragStartScroll = useRef(0);
 
   // Imágenes del artículo
   const images = {
@@ -45,16 +49,49 @@ export default function BlogDetailSection() {
     return () => el.removeEventListener("wheel", onWheel);
   }, []);
 
+      // Drag horizontal sobre el scroller
+  const onScrollPointerDown: React.PointerEventHandler<HTMLDivElement> = (e) => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    setDraggingScroll(true);
+    dragStartX.current = e.clientX;
+    dragStartScroll.current = el.scrollLeft;
+    (e.currentTarget as HTMLElement).setPointerCapture?.(e.pointerId);
+    e.preventDefault();
+  };
+
+  const onScrollPointerMove: React.PointerEventHandler<HTMLDivElement> = (e) => {
+    if (!draggingScroll) return;
+    const el = scrollerRef.current;
+    if (!el) return;
+    e.preventDefault();
+    const dx = e.clientX - dragStartX.current;
+    el.scrollLeft = dragStartScroll.current - dx;
+  };
+    const onScrollPointerUp: React.PointerEventHandler<HTMLDivElement> = (e) => {
+    setDraggingScroll(false);
+    (e.currentTarget as HTMLElement).releasePointerCapture?.(e.pointerId);
+  };
+
+
   return (
-    <main
-  ref={sectionRef}
-  className="bg-neutral-50 text-neutral-900 flex justify-center items-center relative overflow-hidden"
-  style={{
-    overflow: "visible",
-    position: "static",
-    zIndex: "auto",
-  }}
->
+          <main
+        ref={scrollerRef}
+        className={`
+          hidden md:block
+          w-full overflow-x-auto overflow-y-hidden
+          select-none
+          overscroll-x-contain
+          [&::-webkit-scrollbar]:hidden
+          ${draggingScroll ? "cursor-grabbing" : "cursor-grab"}
+        `}
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+        onPointerDown={onScrollPointerDown}
+        onPointerMove={onScrollPointerMove}
+        onPointerUp={onScrollPointerUp}
+        onPointerCancel={onScrollPointerUp}
+      >
+        <div>
 
       {/* 🔙 Botón volver */}
       <button
@@ -69,12 +106,9 @@ export default function BlogDetailSection() {
 
       {/* 🖥️ DESKTOP */}
       <div
-        ref={scrollerRef}
-        className="hidden md:flex overflow-x-auto overflow-y-hidden w-full h-full select-none [&::-webkit-scrollbar]:hidden cursor-grab"
-        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         <div
-          className="flex justify-start items-center mx-auto"
+          className="flex justify-start mx-auto"
           style={{
             gap: "clamp(4rem, 4vw, 8rem)",
             paddingLeft: "clamp(8rem, 10vw, 13.8rem)",
@@ -126,41 +160,37 @@ export default function BlogDetailSection() {
 
           {/* 🔹 COLUMNA CENTRAL (Texto) */}
           <div
-            className="flex flex-col justify-center flex-shrink-0"
+            className="flex justify-items-start !import flex-shrink-0"
             style={{
               width: "clamp(46rem, 36vw, 66.7rem)",
               gap: "clamp(1.2rem, 1.5vw, 2.4rem)",
               color: "#0A0A0A",
               fontFamily: "'Cabinet Grotesk', sans-serif",
-              fontSize: "clamp(1.5rem, 1.2vw, 1.7rem)",
-              lineHeight: "clamp(2rem, 1.8vw, 2.1rem)",
+              fontSize: "clamp(.5rem, 1.2vw, 1.065rem)",
+              lineHeight: 1.4,
               fontWeight: 500,
             }}
           >
             <p>
-              En OUMA tenemos una relación directa con los materiales. Nos gusta
+              En <span className="font-bold">OUMA</span> tenemos una relación directa con los materiales. Nos gusta
               escucharlos antes de intervenirlos. Entender lo que quieren decir
               sin cubrirlos de más.
               <br />
-              <br />
               La madera, por ejemplo, ha sido durante años víctima del barniz
-              total: ese impulso de dejarla brillante, sellada, protegida. Pero
-              ese brillo muchas veces la despoja de lo que la hace viva.
+              total: <br /> ese impulso de dejarla brillante, sellada, protegida. Pero
+              ese brillo muchas veces la despoja <br /> de lo que la hace viva.
               <br />
               <br />
               En su estado crudo, la madera habla.
-            </p>
-
-            <p>
-              Se contrae, se abre, se oxida, cambia de color. Su superficie
-              registra el paso del tiempo, el clima, el contacto humano. Cada
+              Se contrae, se abre, se oxida, cambia de color. <br /> Su superficie
+              registra el paso del tiempo, el clima, el contacto humano. <br /> Cada
               grieta es una conversación con el entorno.
             </p>
           </div>
 
           {/* 🔹 COLUMNA DERECHA (Imagen grande) */}
           <div
-            className="overflow-hidden bg-[#D9D9D9] rounded-sm flex-shrink-0"
+            className="overflow-hidden bg-[#D9D9D9] rounded-sm flex-0"
             style={{
               width: "clamp(42rem, 35vw, 70rem)", // 700px
               height: "clamp(28rem, 25vw, 47.8rem)", // 478px
@@ -213,6 +243,7 @@ export default function BlogDetailSection() {
           alt="Troncos madera"
           className="w-full h-auto object-cover rounded-sm"
         />
+      </div>
       </div>
     </main>
   );

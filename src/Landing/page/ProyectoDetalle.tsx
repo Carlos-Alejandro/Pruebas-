@@ -119,8 +119,8 @@ export default function ProyectoDetalle() {
   };
 
   return (
-    <main className="container mx-auto max-w-[1440px] px-3 md:px-6 pt-8 md:pt-24 pb-24">
-      <div className="text-[12px] text-neutral-400 mb-4">
+    <main className="container mx-auto max-w-[1440px] px-3 md:px-6 pt-8 md:pt-24">
+      <div className="text-[12px] text-neutral-400">
         <button onClick={handleBack} className="hover:text-neutral-700">← Volver</button>
       </div>
 
@@ -156,7 +156,7 @@ export default function ProyectoDetalle() {
           />
         </figure>
 
-        <article className="w-[560px] lg:w-[667px] shrink-0 flex flex-col pr-4 min-h-[62vh]">
+        <article className="w-[560px] lg:w-[667px] shrink-0 flex flex-col pr-4">
           <p className="font-medium text-neutral-900 text-[15px] md:text-[17px] leading-[1.3] tracking-normal antialiased">
             {description}
           </p>

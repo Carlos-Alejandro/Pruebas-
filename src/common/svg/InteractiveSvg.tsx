@@ -1,26 +1,29 @@
-// src/common/svg/InteractiveSvg.tsx
 import { useEffect, useRef } from "react";
 
 type Props = {
-  /** SVG como string (Vite: import icon from './file.svg?raw') */
+  /** Opción A: pasa el SVG como string (import ...?raw desde src/) */
   svg?: string;
-  /** SVG servido desde /public (p.ej. "/Nosotros/columna1.svg") */
+  /** Opción B: ruta pública (ej. "/Nosotros/columna1.svg" en /public) */
   svgUrl?: string;
 
   className?: string;
   style?: React.CSSProperties;
 
-  // Opciones de “dibujado”
-  drawOnHover?: boolean;   // default: true
-  drawDurationMs?: number; // default: 900
-  drawStaggerMs?: number;  // default: 45
-  resetOnLeave?: boolean;  // default: true
-  /** Si lo usas, solo dibuja los nodos que coincidan (ej: "g[data-draw] *") */
-  drawSelector?: string;
+  /** Animación de “trazo” */
+  drawOnHover?: boolean;     // default: true
+  drawDurationMs?: number;   // default: 900
+  drawStaggerMs?: number;    // default: 45
+  resetOnLeave?: boolean;    // default: true
+  drawSelector?: string;     // ej: "g[data-draw] *"
+  autoPlayOnMount?: boolean; // para probar sin hover
 
-  // Parallax inverso
-  parallax?: boolean;      // default: true
-  strength?: number;       // default: 10
+  /** Fallbacks de visibilidad */
+  strokeWidthFallback?: number; // default: 1.5
+  forceCurrentColor?: boolean;  // default: true  -> stroke="currentColor"
+
+  /** Parallax inverso por mouse */
+  parallax?: boolean; // default: true
+  strength?: number;  // default: 10
 };
 
 export default function InteractiveSvg({
@@ -33,13 +36,16 @@ export default function InteractiveSvg({
   drawStaggerMs = 45,
   resetOnLeave = true,
   drawSelector,
+  autoPlayOnMount = false,
+  strokeWidthFallback = 1.5,
+  forceCurrentColor = true,
   parallax = true,
   strength = 10,
 }: Props) {
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
 
-  // Inyecta el SVG (string o URL a public/)
+  // 1) Monta el SVG dentro del wrapper
   useEffect(() => {
     let cancelled = false;
     const mount = async () => {
@@ -52,22 +58,26 @@ export default function InteractiveSvg({
       if (cancelled) return;
 
       wrapRef.current.innerHTML = markup;
-      svgRef.current = wrapRef.current.querySelector("svg");
+      const el = wrapRef.current.querySelector("svg") as SVGSVGElement | null;
+      svgRef.current = el;
 
-      if (svgRef.current) {
-        svgRef.current.style.display = "block";
-        svgRef.current.setAttribute("xmlns", "http://www.w3.org/2000/svg");
+      if (el) {
+        el.style.display = "block";
+        el.style.pointerEvents = "auto"; // importante para hover
+        el.setAttribute("xmlns", "http://www.w3.org/2000/svg");
       }
     };
-
     mount();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [svg, svgUrl]);
 
-  // Efecto “dibujar” (stroke-dasharray/offset) al hover
+  // 2) Animación “dibujar” — listeners en el WRAPPER (robusto)
   useEffect(() => {
     const el = svgRef.current;
-    if (!el || !drawOnHover) return;
+    const host = wrapRef.current;
+    if (!el || !host) return;
 
     const nodes = drawSelector
       ? Array.from(el.querySelectorAll<SVGGraphicsElement>(drawSelector))
@@ -77,46 +87,66 @@ export default function InteractiveSvg({
           )
         );
 
+    // Sólo elementos geométricos con longitud
     const geom = nodes.filter((n: any) => typeof n.getTotalLength === "function");
     if (!geom.length) return;
 
-    // Preparar cada geometría
+    // Preparación de trazos
     geom.forEach((n: any, i) => {
       const len = n.getTotalLength();
-      if (!n.hasAttribute("stroke")) n.setAttribute("stroke", "currentColor"); // fallback
-      if (!n.hasAttribute("fill")) n.setAttribute("fill", "none");
+      if (forceCurrentColor && !n.hasAttribute("stroke")) n.setAttribute("stroke", "currentColor");
+      n.setAttribute("fill", "none");
+      if (!n.hasAttribute("stroke-width")) n.setAttribute("stroke-width", String(strokeWidthFallback));
       n.style.strokeDasharray = `${len}`;
       n.style.strokeDashoffset = `${len}`;
       n.style.transition = `stroke-dashoffset ${drawDurationMs}ms ease ${i * drawStaggerMs}ms`;
     });
 
-    const onEnter = () => {
-      // siguiente frame para respetar transition
+    const play = () =>
       requestAnimationFrame(() => {
         geom.forEach((n: any) => (n.style.strokeDashoffset = "0"));
       });
-    };
-    const onLeave = () => {
+
+    const reset = () => {
       if (!resetOnLeave) return;
-      geom.forEach((n: any) => {
-        n.style.strokeDashoffset = n.style.strokeDasharray || "0";
-      });
+      geom.forEach(
+        (n: any) => (n.style.strokeDashoffset = n.style.strokeDasharray || "0")
+      );
     };
 
-    el.addEventListener("mouseenter", onEnter);
-    el.addEventListener("mouseleave", onLeave);
-    el.addEventListener("touchstart", onEnter, { passive: true });
-    el.addEventListener("touchend", onLeave);
+    // Hover en el wrapper (entra/sale)
+    if (drawOnHover) {
+      host.addEventListener("mouseenter", play);
+      host.addEventListener("mouseleave", reset);
+      host.addEventListener("touchstart", play, { passive: true });
+      host.addEventListener("touchend", reset);
+    }
+
+    // Auto (para test rápido)
+    if (autoPlayOnMount) play();
 
     return () => {
-      el.removeEventListener("mouseenter", onEnter);
-      el.removeEventListener("mouseleave", onLeave);
-      el.removeEventListener("touchstart", onEnter);
-      el.removeEventListener("touchend", onLeave);
+      if (drawOnHover) {
+        host.removeEventListener("mouseenter", play);
+        host.removeEventListener("mouseleave", reset);
+        host.removeEventListener("touchstart", play);
+        host.removeEventListener("touchend", reset);
+      }
     };
-  }, [drawOnHover, drawDurationMs, drawStaggerMs, resetOnLeave, drawSelector, svg, svgUrl]);
+  }, [
+    drawOnHover,
+    drawDurationMs,
+    drawStaggerMs,
+    resetOnLeave,
+    drawSelector,
+    autoPlayOnMount,
+    strokeWidthFallback,
+    forceCurrentColor,
+    svg,
+    svgUrl,
+  ]);
 
-  // Parallax inverso (mueve <g data-depth="...">)
+  // 3) Parallax inverso por mouse (g[data-depth])
   useEffect(() => {
     const wrap = wrapRef.current;
     const el = svgRef.current;
@@ -126,15 +156,15 @@ export default function InteractiveSvg({
     if (!groups.length) return;
 
     let rect = wrap.getBoundingClientRect();
-    let raf = 0;
-    let mx = 0, my = 0;
-    let dirty = false;
+    let raf = 0,
+      mx = 0,
+      my = 0,
+      dirty = false;
 
     const tick = () => {
       raf = 0;
       if (!dirty) return;
       dirty = false;
-
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
       const dx = (mx - cx) / rect.width;

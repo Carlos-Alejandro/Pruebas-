@@ -358,7 +358,7 @@ export default function Inicio() {
                 <img
                   src={it.src}
                   alt={it.title}
-                  className="h-full w-full object-cover"
+                  className="h-full w-full object-contain-sm object-center transition-transform duration-300 ease-in-out hover:scale-[1.03]"
                   draggable={false}
                   onDragStart={(e) => e.preventDefault()}
                   data-shared-key={it.key}

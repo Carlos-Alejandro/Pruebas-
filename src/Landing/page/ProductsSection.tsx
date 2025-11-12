@@ -82,7 +82,7 @@ export default function ProductsSection() {
   return (
     <section
       ref={sectionRef}
-      className="text-[#0A0A0A] flex justify-center items-center relative overflow-hidden"
+      className="text-[#0A0A0A] flex justify-center items-center  overflow-hidden"
     >
       {/* DESKTOP: Scroller horizontal continuo (sin snap) */}
       <div
