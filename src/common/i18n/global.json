@@ -1,0 +1,17 @@
+{
+    "es": {
+      "header": {
+        "title": "Blank",
+        "home": "Inicio",
+        "about": "Acerca de"
+      }
+    },
+    "en": {
+      "header": {
+        "title": "Blank",
+        "home": "Home",
+        "about": "About"
+      }
+    }
+  }
+  
