@@ -1,0 +1,28 @@
+{
+  "es": {
+    "nav": {
+      "inicio": "INICIO",
+      "videos": "VIDEOS",
+      "nosotros": "NOSOTROS",
+      "contacto": "CONTACTO",
+      "careers": "BLANK CAREERS",
+      "language": "Español/English",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "linkedin": "LinkedIn"
+    }
+  },
+  "en": {
+    "nav": {
+      "inicio": "HOME",
+      "videos": "VIDEOS",
+      "nosotros": "ABOUT",
+      "contacto": "CONTACT",
+      "careers": "BLANK CAREERS",
+      "language": "Español/English",
+      "instagram": "Instagram",
+      "facebook": "Facebook",
+      "linkedin": "LinkedIn"
+    }
+  }
+}
