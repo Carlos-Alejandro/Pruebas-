@@ -1,14 +1,7 @@
-import Navbar from "./Landing/components/Navbar";
-import Inicio from "./Landing/page/Inicio";
-
+import AppRoutes from "./routes";
 
 function App() {
-  return (
-    <>
-      <Navbar />
-      <Inicio />
-    </>
-  );
+  return <AppRoutes />;
 }
 
 export default App;

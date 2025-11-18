@@ -1,0 +1,36 @@
+{
+  "es": {
+    "footer": {
+      "links": {
+        "inicio": "Inicio",
+        "videos": "Videos",
+        "nosotros": "Nosotros",
+        "contacto": "Contacto",
+        "careers": "Careers"
+      },
+      "button": "NO PRESIONES ESTE BOTÓN",
+      "email": "info@blank.com.mx",
+      "phone": "+52 998 743 4752",
+      "copyright": "Blank 2025 © All Rights Reserved",
+      "privacy": "Políticas de privacidad",
+      "terms": "Términos y condiciones"
+    }
+  },
+  "en": {
+    "footer": {
+      "links": {
+        "inicio": "Home",
+        "videos": "Videos",
+        "nosotros": "About",
+        "contacto": "Contact",
+        "careers": "Careers"
+      },
+      "button": "DON'T PRESS THIS BUTTON",
+      "email": "info@blank.com.mx",
+      "phone": "+52 998 743 4752",
+      "copyright": "Blank 2025 © All Rights Reserved",
+      "privacy": "Privacy Policy",
+      "terms": "Terms and Conditions"
+    }
+  }
+}
