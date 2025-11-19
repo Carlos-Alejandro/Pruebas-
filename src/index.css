@@ -12,3 +12,23 @@ body {
   @apply bg-slate-950 text-slate-50;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
+@keyframes brands-marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.brands-marquee {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  animation: brands-marquee 28s linear infinite;
+}
+
+/* Pausar animación al hover */
+.brands-marquee:hover {
+  animation-play-state: paused;
+}
