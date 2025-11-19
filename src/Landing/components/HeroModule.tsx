@@ -5,7 +5,7 @@ import { useLanguage, type Language } from "../../common/i18n/LanguageContext";
 import photo1 from "../../assets/Hero/Bicicleta.png";
 import photo2 from "../../assets/Hero/PlatiloComida.png";
 import photo3 from "../../assets/Hero/Entrada.png";
-import photo4 from "../../assets/Hero/MujerGas.png";
+import photo4real from "../../assets/Hero/MujerGas.png";
 
 // LOGOS DE MARCAS
 import openfilmsLogo from "../../assets/Logos/openfilms.svg";
@@ -13,27 +13,25 @@ import karavanaLogo from "../../assets/Logos/karavana.svg";
 import okkoLogo from "../../assets/Logos/okko.svg";
 import neroliLogo from "../../assets/Logos/neroli.svg";
 import garageLogo from "../../assets/Logos/garage.svg";
-import oumaLogo from "../../assets/Logos/ouma.svg";
-import aarhusLogo from "../../assets/Logos/aarhus.svg";
+// este es el SVG grande que ya dejaste en blanco
+import oumaLogo from "../../assets/Logos/download.svg";
 
 import heroJson from "../../common/i18n/hero.json";
 
-const photos = [photo1, photo2, photo3, photo4];
+const photos = [photo1, photo2, photo3, photo4real];
 
 type BrandLogo = {
   src: string;
   alt: string;
-  invertOnDark?: boolean;
 };
 
 const brandLogos: BrandLogo[] = [
   { src: openfilmsLogo, alt: "Openfilms" },
   { src: karavanaLogo, alt: "Karavana" },
   { src: okkoLogo, alt: "OKKO" },
-  { src: oumaLogo, alt: "Ouma", invertOnDark: true },
-  { src: aarhusLogo, alt: "Aarhus", invertOnDark: true },
-  { src: neroliLogo, alt: "Neroli", invertOnDark: true },
-  { src: garageLogo, alt: "Garage", invertOnDark: true },
+  { src: neroliLogo, alt: "Neroli" },
+  { src: garageLogo, alt: "Garage" },
+  { src: oumaLogo, alt: "Ouma" }, // ya es blanco en el SVG
 ];
 
 type HeroCopy = {
@@ -162,7 +160,7 @@ function HeroPhoto({ src, index }: HeroPhotoProps) {
         />
       </svg>
 
-      {/* Capa suave para oscurecer un poco en B/N (la quitamos al hover) */}
+      {/* Overlay suave */}
       <div
         className="
           pointer-events-none absolute inset-0
@@ -172,7 +170,7 @@ function HeroPhoto({ src, index }: HeroPhotoProps) {
         "
       />
 
-      {/* Degradado sutil en los extremos para integrarlo con el fondo */}
+      {/* Degradados extremos */}
       {index === 0 && (
         <div
           className="
@@ -199,17 +197,17 @@ export default function HeroModule() {
 
   return (
     <section className="w-full bg-white text-slate-900">
-      {/* COPY DEL HERO */}
-      <div className="mx-auto max-w-6xl px-4 pt-16 pb-8 text-center">
+      {/* COPY DEL HERO (ajustado a H1 más grande y bold) */}
+      <div className="mx-auto max-w-6xl px-4 pt-16 pb-10 text-center">
         <p
           className="
             whitespace-pre-line
-            text-[16px] sm:text-[18px] md:text-[22px]
-            font-semibold
-            tracking-[0.20em]
+            text-[22px] sm:text-[26px] md:text-[32px] lg:text-[38px]
+            font-extrabold
+            tracking-[0.18em]
             uppercase
             text-black
-            leading-tight
+            leading-[1.25]
           "
         >
           “{tagline}”
@@ -237,59 +235,15 @@ export default function HeroModule() {
 
       {/* CARRUSEL DE MARCAS */}
       <div className="w-full bg-black border-t border-neutral-800 py-6 sm:py-8">
-        <div className="relative overflow-hidden">
-          {/* Degradado lateral izquierdo */}
-          <div
-            className="
-              pointer-events-none
-              absolute inset-y-0 left-0
-              w-16 sm:w-20
-              bg-gradient-to-r from-black to-transparent
-              z-10
-            "
-          />
-          {/* Degradado lateral derecho */}
-          <div
-            className="
-              pointer-events-none
-              absolute inset-y-0 right-0
-              w-16 sm:w-20
-              bg-gradient-to-l from-black to-transparent
-              z-10
-            "
-          />
-
-          {/* Track deslizante de logos */}
-          <div className="brands-marquee">
+        <div className="brands-slider">
+          <div className="brands-track">
             {[...brandLogos, ...brandLogos].map((brand, idx) => (
-              <div
-                key={`${brand.alt}-${idx}`}
-                className="
-                  flex items-center justify-center
-                  h-14 sm:h-16 md:h-20          /* misma altura base + más grandes */
-                  min-w-[140px] sm:min-w-[170px] md:min-w-[190px]
-                  px-8
-                "
-              >
-                <div
-                  className={
-                    brand.invertOnDark
-                      ? "flex h-full items-center justify-center rounded-sm bg-white/[0.03]"
-                      : "flex h-full items-center justify-center"
-                  }
-                >
-                  <img
-                    src={brand.src}
-                    alt={brand.alt}
-                    className={
-                      "max-h-full w-auto object-contain opacity-80 transition-all duration-300 " +
-                      (brand.invertOnDark
-                        ? " invert brightness-[3] contrast-150"
-                        : "") +
-                      " hover:opacity-100 hover:scale-105"
-                    }
-                  />
-                </div>
+              <div key={`${brand.alt}-${idx}`} className="brands-slide">
+                <img
+                  src={brand.src}
+                  alt={brand.alt}
+                  className="brands-logo-img"
+                />
               </div>
             ))}
           </div>
