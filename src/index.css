@@ -1,3 +1,6 @@
+/* 1) CARGAR MONTSERRAT DESDE GOOGLE FONTS */
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap");
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -8,10 +11,37 @@ body,
   height: 100%;
 }
 
+/* 2) Fuente global (si quieres puedes dejarla como estaba) */
 body {
   @apply bg-slate-950 text-slate-50;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
+
+/* 3) ESTILO EXACTO DEL H1 DEL HERO (Montserrat Bold 40 / Auto / 0%) */
+.hero-tagline {
+  font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-weight: 700;   /* Bold */
+  font-size: 40px;    /* tamaño Figma */
+  line-height: 1.2;   /* Auto aprox */
+  letter-spacing: 0;  /* 0% tracking */
+}
+
+/* Opcional: hacerla un poco más pequeña en pantallas chicas */
+@media (max-width: 1024px) {
+  .hero-tagline {
+    font-size: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-tagline {
+    font-size: 26px;
+  }
+}
+
+/* ==========================
+   CARRUSEL DE LOGOS (tal como ya lo tienes)
+   ========================== */
 
 /* CONTENEDOR GENERAL DEL CARRUSEL */
 .brands-slider {
@@ -24,14 +54,14 @@ body {
 .brands-track {
   display: flex;
   align-items: center;
-  gap: 3.5rem;               /* ⬅️ MISMA SEPARACIÓN ENTRE TODOS LOS LOGOS */
+  gap: 3.5rem;               /* MISMA SEPARACIÓN ENTRE TODOS LOS LOGOS */
   width: max-content;
   animation: brands-scroll 40s linear infinite;
 }
 
 /* Cada logo ocupa EXACTAMENTE el mismo ancho visual */
 .brands-slide {
-  flex: 0 0 220px;           /* ⬅️ ancho fijo por logo (ajusta 200–240 si quieres) */
+  flex: 0 0 220px;           /* ancho fijo por logo */
   height: 4rem;              /* altura del carrusel de logos */
   display: flex;
   align-items: center;
@@ -40,7 +70,7 @@ body {
 
 /* Tamaño del logo dentro del “slot” */
 .brands-logo-img {
-  max-height: 3.2rem;        /* ⬅️ tamaño del logo (puedes subir a 3.4–3.6 si quieres aún más grande) */
+  max-height: 3.2rem;
   width: auto;
   display: block;
   opacity: 0.8;

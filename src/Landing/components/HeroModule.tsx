@@ -197,22 +197,20 @@ export default function HeroModule() {
 
   return (
     <section className="w-full bg-white text-slate-900">
-      {/* COPY DEL HERO (ajustado a H1 más grande y bold) */}
-      <div className="mx-auto max-w-6xl px-4 pt-16 pb-10 text-center">
+      {/* COPY DEL HERO (Montserrat Bold 40) */}
+      <div className="mx-auto max-w-6xl px-4 pt-30 pb-20 text-center">
         <p
           className="
+            hero-tagline
             whitespace-pre-line
-            text-[22px] sm:text-[26px] md:text-[32px] lg:text-[38px]
-            font-extrabold
-            tracking-[0.18em]
             uppercase
             text-black
-            leading-[1.25]
           "
         >
           “{tagline}”
         </p>
       </div>
+
 
       {/* HERO FOTOS */}
       <div className="w-full">
