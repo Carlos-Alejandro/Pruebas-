@@ -2,10 +2,10 @@ import React, { useRef } from "react";
 import { gsap } from "gsap";
 import { useLanguage, type Language } from "../../common/i18n/LanguageContext";
 
-import photo1 from "../../assets/Hero/Bicicleta.png";
+import photo1 from "../../assets/Hero/BicicletaColor.png";
 import photo2 from "../../assets/Hero/PlatiloComida.png";
-import photo3 from "../../assets/Hero/Entrada.png";
-import photo4real from "../../assets/Hero/MujerGas.png";
+import photo3 from "../../assets/Hero/EntradaColor.jpg";
+import photo4real from "../../assets/Hero/MuejerColor.jpg";
 
 // LOGOS DE MARCAS
 import openfilmsLogo from "../../assets/Logos/openfilms.svg";
