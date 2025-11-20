@@ -204,37 +204,58 @@ const Careers: React.FC = () => {
 								}}
 							>
 								<div
-									style={{
-										width: '100%',
-										display: 'flex',
-										justifyContent: 'center',
-										transform: 'scale(0.92)',
-										transformOrigin: '0 0',
-										maxWidth: 304,
-										minWidth: 180,
-									}}
+										style={{
+												width: '100%',
+												display: 'flex',
+												justifyContent: 'center',
+												maxWidth: 304,
+												minWidth: 180,
+												// Escalado responsivo con media queries en línea
+												transform: 'scale(0.92)',
+												transformOrigin: '0 0',
+										}}
 								>
-								<ReCAPTCHA
-									sitekey={RECAPTCHA_SITE_KEY}
-									onChange={handleCaptchaChange}
-									theme="light"
-								/>
+										<style>{`
+												@media (max-width: 600px) {
+													.recaptcha-scale {
+														transform: scale(0.78) !important;
+													}
+												}
+												@media (max-width: 400px) {
+													.recaptcha-scale {
+														transform: scale(0.65) !important;
+													}
+												}
+										`}</style>
+																<div className="recaptcha-scale">
+																	<ReCAPTCHA
+																			sitekey={RECAPTCHA_SITE_KEY}
+																			onChange={handleCaptchaChange}
+																			theme="light"
+																	/>
+																</div>
   </div>
 							</div>
 						</div>
-						<button style={{
-							background: '#111',
-							color: '#fff',
-							fontWeight: 700,
-							fontFamily: 'Montserrat, sans-serif',
-							fontSize: 'clamp(15px, 1.2vw, 20px)',
-							padding: 'clamp(10px, 1vw, 18px) clamp(32px, 4vw, 64px)',
-							border: 'none',
-							borderRadius: 4,
-							marginTop: 'clamp(8px, 1vw, 24px)',
-							cursor: 'pointer',
-							letterSpacing: 0.2,
-						}}>{t('send')}</button>
+						<button
+							style={{
+								background: '#111',
+								color: '#fff',
+								fontWeight: 700,
+								fontFamily: 'Montserrat, sans-serif',
+								fontSize: 'clamp(15px, 1.2vw, 20px)',
+								padding: 'clamp(10px, 1vw, 18px) clamp(32px, 4vw, 64px)',
+								border: 'none',
+								borderRadius: 4,
+								marginTop: 'clamp(8px, 1vw, 24px)',
+								cursor: captchaValue ? 'pointer' : 'not-allowed',
+								letterSpacing: 0.2,
+								opacity: captchaValue ? 1 : 0.5,
+							}}
+							disabled={!captchaValue}
+						>
+							{t('send')}
+						</button>
 					</div>
 				</div>
 			</div>
