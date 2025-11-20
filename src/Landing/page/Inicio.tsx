@@ -4,6 +4,7 @@ import { useLanguage } from "../../common/i18n/LanguageContext";
 import FeatureSection from "../components/DifferentiatorsSection";
 import BrandSeparatorSection from "../components/BrandSeparatorSection";
 import LensSection from "../components/LensSection";
+import VideoSection from "../components/VideoSection";
 
 export default function Inicio() {
   useLanguage();
@@ -17,6 +18,7 @@ export default function Inicio() {
       <FeatureSection />
       <BrandSeparatorSection />
       <LensSection />
+      <VideoSection />
     </div>
   );
 }
