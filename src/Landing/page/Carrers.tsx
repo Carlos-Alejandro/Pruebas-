@@ -16,6 +16,18 @@ const Careers: React.FC = () => {
 	const [attachedFile, setAttachedFile] = React.useState<File | null>(null);
 	const [fileError, setFileError] = React.useState<string | null>(null);
 
+	// Estado para campos obligatorios
+	const [form, setForm] = React.useState({
+		name: '',
+		lastname: '',
+		email: '',
+		phone: '',
+		message: '',
+		portfolio: '',
+	});
+	const [touched, setTouched] = React.useState<{[k: string]: boolean}>({});
+	const [submitError, setSubmitError] = React.useState<string | null>(null);
+
 	const handleCaptchaChange = (value: string | null) => {
 		setCaptchaValue(value);
 	};
@@ -29,6 +41,29 @@ const Careers: React.FC = () => {
 			setFileError(null);
 			setAttachedFile(file);
 		}
+	};
+
+	const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+		const { name, value } = e.target;
+		setForm((prev) => ({ ...prev, [name]: value }));
+	};
+
+	const handleBlur = (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+		const { name } = e.target;
+		setTouched((prev) => ({ ...prev, [name]: true }));
+	};
+
+	const isRequiredMissing = !form.name || !form.lastname || !form.email || !form.phone || !attachedFile;
+
+	const handleSubmit = (e: React.FormEvent) => {
+		e.preventDefault();
+		setTouched({ name: true, lastname: true, email: true, phone: true });
+		if (isRequiredMissing) {
+			setSubmitError('Por favor completa todos los campos obligatorios.');
+			return;
+		}
+		setSubmitError(null);
+		// Aquí iría el envío real del formulario
 	};
 
 	return (
@@ -50,51 +85,27 @@ const Careers: React.FC = () => {
 					maxWidth: 1920,
 					margin: '0 auto',
 					padding: 'clamp(16px, 3vw, 48px)',
-					display: 'flex',
-					flexDirection: 'column',
-					gap: 'clamp(16px, 2vw, 32px)',
-					fontFamily: 'Montserrat, sans-serif',
 				}}
 			>
-				{/* Título y subtítulo */}
+				{/* Título y subtítulo restaurados */}
 				<div style={{ marginBottom: 'clamp(12px, 2vw, 24px)' }}>
+					<h1
+						style={{
+							fontWeight: 700,
+							fontSize: 'clamp(22px, 2.5vw, 38px)',
+							margin: 0,
+							letterSpacing: 0.2,
+							display: 'inline-block',
+							color: '#111',
+						}}
+					>
 						{(() => {
 							const title = t('title');
 							const dashIdx = title.indexOf('—');
-							if (dashIdx === -1) {
-								return (
-									<h1
-										style={{
-											fontWeight: 700,
-											fontSize: 'clamp(22px, 2.5vw, 38px)',
-											margin: 0,
-											letterSpacing: 0.2,
-											display: 'inline-block',
-											color: '#111',
-										}}
-									>
-										{title}
-									</h1>
-								);
-							}
-							return (
-								<h1
-									style={{
-										fontWeight: 700,
-										fontSize: 'clamp(22px, 2.5vw, 38px)',
-										margin: 0,
-										letterSpacing: 0.2,
-										display: 'inline-block',
-										color: '#111',
-									}}
-								>
-									{title.slice(0, dashIdx)}
-									<span style={{ color: '#868686', fontWeight: 700 }}>
-										{title.slice(dashIdx)}
-									</span>
-								</h1>
-							);
+							if (dashIdx === -1) return title;
+							return <>{title.slice(0, dashIdx)}<span style={{ color: '#868686', fontWeight: 700 }}>{title.slice(dashIdx)}</span></>;
 						})()}
+					</h1>
 					<p style={{
 						fontSize: 'clamp(14px, 1.2vw, 18px)',
 						margin: 'clamp(8px, 1vw, 16px) 0 0 0',
@@ -105,8 +116,18 @@ const Careers: React.FC = () => {
 						{t('subtitle')}
 					</p>
 				</div>
+				<p style={{
+					fontSize: 'clamp(14px, 1.2vw, 18px)',
+					margin: 'clamp(8px, 1vw, 16px) 0 0 0',
+					color: '#111',
+					fontWeight: 400,
+					maxWidth: 900,
+				}}>
+					{t('subtitle')}
+				</p>
 				{/* Formulario y adjunto */}
-				<div
+				<form
+					onSubmit={handleSubmit}
 					style={{
 						display: 'flex',
 						flexWrap: 'wrap',
@@ -119,26 +140,95 @@ const Careers: React.FC = () => {
 						<div style={{ display: 'flex', gap: 'clamp(12px, 1vw, 20px)' }}>
 							<div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
 								<label style={{ fontWeight: 700, fontSize: 'clamp(13px, 1vw, 16px)', color: '#111' }}>{t('name')}<span style={{ color: 'red' }}>*</span></label>
-								<input style={{ padding: 'clamp(8px, 1vw, 14px)', fontSize: 'clamp(13px, 1vw, 16px)', border: '1px solid #111', borderRadius: 0, color: '#111' }} />
+								<input
+									name="name"
+									value={form.name}
+									onChange={handleInputChange}
+									onBlur={handleBlur}
+									style={{
+										padding: 'clamp(8px, 1vw, 14px)',
+										fontSize: 'clamp(13px, 1vw, 16px)',
+										border: touched.name && !form.name ? '1.5px solid red' : '1px solid #111',
+										borderRadius: 0,
+										color: '#111',
+									}}
+								/>
+								{touched.name && !form.name && <span style={{ color: 'red', fontSize: 12 }}>Obligatorio</span>}
 							</div>
 							<div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
 								<label style={{ fontWeight: 700, fontSize: 'clamp(13px, 1vw, 16px)', color: '#111' }}>{t('lastname')}<span style={{ color: 'red' }}>*</span></label>
-								<input style={{ padding: 'clamp(8px, 1vw, 14px)', fontSize: 'clamp(13px, 1vw, 16px)', border: '1px solid #111', borderRadius: 0, color: '#111' }} />
+								<input
+									name="lastname"
+									value={form.lastname}
+									onChange={handleInputChange}
+									onBlur={handleBlur}
+									style={{
+										padding: 'clamp(8px, 1vw, 14px)',
+										fontSize: 'clamp(13px, 1vw, 16px)',
+										border: touched.lastname && !form.lastname ? '1.5px solid red' : '1px solid #111',
+										borderRadius: 0,
+										color: '#111',
+									}}
+								/>
+								{touched.lastname && !form.lastname && <span style={{ color: 'red', fontSize: 12 }}>Obligatorio</span>}
 							</div>
 						</div>
 						<div style={{ display: 'flex', gap: 'clamp(12px, 1vw, 20px)' }}>
 							<div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
 								<label style={{ fontWeight: 700, fontSize: 'clamp(13px, 1vw, 16px)', color: '#111' }}>{t('email')}<span style={{ color: 'red' }}>*</span></label>
-								<input style={{ padding: 'clamp(8px, 1vw, 14px)', fontSize: 'clamp(13px, 1vw, 16px)', border: '1px solid #111', borderRadius: 0, color: '#111' }} />
+								<input
+									name="email"
+									value={form.email}
+									onChange={handleInputChange}
+									onBlur={handleBlur}
+									style={{
+										padding: 'clamp(8px, 1vw, 14px)',
+										fontSize: 'clamp(13px, 1vw, 16px)',
+										border: touched.email && !form.email ? '1.5px solid red' : '1px solid #111',
+										borderRadius: 0,
+										color: '#111',
+									}}
+								/>
+								{touched.email && !form.email && <span style={{ color: 'red', fontSize: 12 }}>Obligatorio</span>}
 							</div>
 							<div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
 								<label style={{ fontWeight: 700, fontSize: 'clamp(13px, 1vw, 16px)', color: '#111' }}>{t('phone')}<span style={{ color: 'red' }}>*</span></label>
-								<input style={{ padding: 'clamp(8px, 1vw, 14px)', fontSize: 'clamp(13px, 1vw, 16px)', border: '1px solid #111', borderRadius: 0, color: '#111' }} />
+								<input
+									name="phone"
+									value={form.phone}
+									onChange={handleInputChange}
+									onBlur={handleBlur}
+									style={{
+										padding: 'clamp(8px, 1vw, 14px)',
+										fontSize: 'clamp(13px, 1vw, 16px)',
+										border: touched.phone && !form.phone ? '1.5px solid red' : '1px solid #111',
+										borderRadius: 0,
+										color: '#111',
+									}}
+								/>
+								{touched.phone && !form.phone && <span style={{ color: 'red', fontSize: 12 }}>Obligatorio</span>}
 							</div>
 						</div>
 						<div style={{ display: 'flex', flexDirection: 'column', gap: 4, flex: 1 }}>
 							<label style={{ fontWeight: 700, fontSize: 'clamp(13px, 1vw, 16px)', color: '#111' }}>{t('message')}</label>
-							<textarea style={{ padding: 'clamp(8px, 1vw, 14px)', fontSize: 'clamp(13px, 1vw, 16px)', border: '1px solid #111', borderRadius: 0, minHeight: 160, height: '100%', resize: 'vertical', color: '#111', boxSizing: 'border-box', width: '100%' }} />
+							<textarea
+								name="message"
+								value={form.message}
+								onChange={handleInputChange}
+								onBlur={handleBlur}
+								style={{
+									padding: 'clamp(8px, 1vw, 14px)',
+									fontSize: 'clamp(13px, 1vw, 16px)',
+									border: '1px solid #111',
+									borderRadius: 0,
+									minHeight: 160,
+									height: '100%',
+									resize: 'vertical',
+									color: '#111',
+									boxSizing: 'border-box',
+									width: '100%',
+								}}
+							/>
 						</div>
 					</div>
 					{/* Columna derecha: adjunto y captcha */}
@@ -188,7 +278,19 @@ const Careers: React.FC = () => {
 						<div style={{ display: 'flex', gap: 'clamp(8px, 1vw, 16px)', alignItems: 'center' }}>
 							<div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
 								<label style={{ fontWeight: 700, fontSize: 'clamp(13px, 1vw, 16px)', color: '#111' }}>{t('portfolio')}</label>
-								<input style={{ padding: 'clamp(8px, 1vw, 14px)', fontSize: 'clamp(13px, 1vw, 16px)', border: '1px solid #111', borderRadius: 0, color: '#111' }} />
+								<input
+									name="portfolio"
+									value={form.portfolio}
+									onChange={handleInputChange}
+									onBlur={handleBlur}
+									style={{
+										padding: 'clamp(8px, 1vw, 14px)',
+										fontSize: 'clamp(13px, 1vw, 16px)',
+										border: '1px solid #111',
+										borderRadius: 0,
+										color: '#111',
+									}}
+								/>
 							</div>
 							{/* Google reCAPTCHA real */}
 							<div
@@ -204,42 +306,23 @@ const Careers: React.FC = () => {
 								}}
 							>
 								<div
-										style={{
-												width: '100%',
-												display: 'flex',
-												justifyContent: 'center',
-												maxWidth: 304,
-												minWidth: 180,
-												// Escalado responsivo con media queries en línea
-												transform: 'scale(0.92)',
-												transformOrigin: '0 0',
-										}}
+									style={{
+										display: 'flex',
+										justifyContent: 'center',
+									}}
 								>
-										<style>{`
-												@media (max-width: 600px) {
-													.recaptcha-scale {
-														transform: scale(0.78) !important;
-													}
-												}
-												@media (max-width: 400px) {
-													.recaptcha-scale {
-														transform: scale(0.65) !important;
-													}
-												}
-										`}</style>
-																<div className="recaptcha-scale">
-																	<ReCAPTCHA
-																			sitekey={RECAPTCHA_SITE_KEY}
-																			onChange={handleCaptchaChange}
-																			theme="light"
-																	/>
-																</div>
-  </div>
+								<ReCAPTCHA
+									sitekey={RECAPTCHA_SITE_KEY}
+									onChange={handleCaptchaChange}
+									theme="light"
+								/>
+  								</div>
 							</div>
 						</div>
 						<button
+							type="submit"
 							style={{
-								background: '#111',
+								background: captchaValue ? '#111' : '#888',
 								color: '#fff',
 								fontWeight: 700,
 								fontFamily: 'Montserrat, sans-serif',
@@ -250,14 +333,16 @@ const Careers: React.FC = () => {
 								marginTop: 'clamp(8px, 1vw, 24px)',
 								cursor: captchaValue ? 'pointer' : 'not-allowed',
 								letterSpacing: 0.2,
-								opacity: captchaValue ? 1 : 0.5,
+								opacity: captchaValue ? 1 : 0.6,
+								transition: 'background 0.2s, opacity 0.2s',
 							}}
 							disabled={!captchaValue}
 						>
 							{t('send')}
 						</button>
+						{submitError && <div style={{ color: 'red', marginTop: 8 }}>{submitError}</div>}
 					</div>
-				</div>
+				</form>
 			</div>
 		</section>
 	);
