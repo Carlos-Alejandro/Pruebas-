@@ -5,6 +5,7 @@ import FeatureSection from "../components/DifferentiatorsSection";
 import BrandSeparatorSection from "../components/BrandSeparatorSection";
 import LensSection from "../components/LensSection";
 import VideoSection from "../components/VideoSection";
+import ContactSection from "../components/ContactSection";
 
 export default function Inicio() {
   useLanguage();
@@ -19,6 +20,7 @@ export default function Inicio() {
       <BrandSeparatorSection />
       <LensSection />
       <VideoSection />
+      <ContactSection />
     </div>
   );
 }

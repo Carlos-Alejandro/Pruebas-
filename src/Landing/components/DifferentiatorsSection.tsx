@@ -44,7 +44,8 @@ export default function DifferentiatorsSection() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        padding: "clamp(40px, 6vw, 120px) 0",
+        padding: "8rem 0",
+
       }}
     >
       {/* TÍTULO */}

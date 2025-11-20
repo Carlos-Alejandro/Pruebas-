@@ -1,0 +1,39 @@
+{
+  "es": {
+    "title": "HABLEMOS",
+    "fields": {
+      "firstName": "Nombre/s",
+      "lastName": "Apellido/s",
+      "email": "Correo electrónico",
+      "phone": "Número de teléfono",
+      "message": "Mensaje"
+    },
+    "contact": {
+      "emailLabel": "CORREO",
+      "phoneLabel": "TELÉFONO",
+      "emailValue": "info@blank.com.mx",
+      "phoneValue": "+52 998 743 4752"
+    },
+    "button": "Enviar",
+    "captcha": "I am not a robot"
+  },
+
+  "en": {
+    "title": "LET’S TALK",
+    "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
+      "email": "Email",
+      "phone": "Phone number",
+      "message": "Message"
+    },
+    "contact": {
+      "emailLabel": "EMAIL",
+      "phoneLabel": "PHONE",
+      "emailValue": "info@blank.com.mx",
+      "phoneValue": "+52 998 743 4752"
+    },
+    "button": "Send",
+    "captcha": "I am not a robot"
+  }
+}

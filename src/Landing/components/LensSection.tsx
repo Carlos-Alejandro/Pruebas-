@@ -59,7 +59,8 @@ export default function LensSection() {
         display: "flex",
         flexDirection: "column",
         justifyContent: "center",
-        padding: "clamp(30px, 5vw, 50px) 0",
+        padding: "8rem 0",
+
       }}
     >
       {/* TÍTULO */}
@@ -145,11 +146,7 @@ export default function LensSection() {
                     color: "#000",
                   }}
                 >
-                  {index === 1
-                    ? "POST-PRODUCCIÓN\nCURADA"
-                    : index === 3
-                    ? "FULL CREATIVE\nDIRECTION"
-                    : item.title}
+                  {item.title}
                 </h3>
 
                 {/* IMAGEN (MISMA ANIMACIÓN QUE DIFFERENTIATORS) */}
