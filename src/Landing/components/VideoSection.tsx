@@ -33,7 +33,6 @@ export default function VideoSection() {
     }
   };
 
-  // 👇 Nuevo: toggle solo play / pause al click en el video
   const handleVideoClick = () => {
     if (!videoRef.current) return;
     if (videoRef.current.paused) {
@@ -62,7 +61,7 @@ export default function VideoSection() {
                   font-bold
                   uppercase
                   text-center md:text-right
-                  text-[32px] md:text-[30px]
+                  text-[32px] md:text-[28px]
                   leading-[1.3]
                   tracking-[0.18em]
                 "
@@ -81,7 +80,7 @@ export default function VideoSection() {
                 className="
                   max-w-[540px]
                   font-['Montserrat']
-                  text-[18px] md:text-[20px]
+                  text-[18px] md:text-[21px]
                   leading-[1.4]
                   text-center md:text-left
                   whitespace-pre-line
