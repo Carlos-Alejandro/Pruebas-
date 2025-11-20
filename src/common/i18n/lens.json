@@ -1,0 +1,22 @@
+{
+  "es": {
+    "title": "A TRAVÉS DE NUESTRO LENTE",
+    "subtitle": "Contamos historias y conectamos con la gente.",
+    "items": [
+      { "title": "NARRATIVA CINEMATOGRÁFICA" },
+      { "title": "POST-PRODUCCIÓN CURADA" },
+      { "title": "DIRECCIÓN ALTAMENTE CREATIVA" },
+      { "title": "FULL CREATIVE DIRECTION" }
+    ]
+  },
+  "en": {
+    "title": "THROUGH OUR LENS",
+    "subtitle": "We tell stories and connect with people.",
+    "items": [
+      { "title": "CINEMATIC NARRATIVE" },
+      { "title": "CURATED POST-PRODUCTION" },
+      { "title": "HIGHLY CREATIVE DIRECTION" },
+      { "title": "FULL CREATIVE DIRECTION" }
+    ]
+  }
+}
